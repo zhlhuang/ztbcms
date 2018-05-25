@@ -19,6 +19,7 @@
  * This source file is subject to the MIT license that is bundled
  * with this source code in the file LICENSE.
  */
+
 namespace EasyWeChat\Core;
 
 use EasyWeChat\Core\Exceptions\HttpException;
@@ -51,6 +52,11 @@ abstract class AbstractAPI
     const GET = 'get';
     const POST = 'post';
     const JSON = 'json';
+
+    /**
+     * @var int
+     */
+    protected static $maxRetries = 2;
 
     /**
      * Constructor.
@@ -116,6 +122,14 @@ abstract class AbstractAPI
         $this->accessToken = $accessToken;
 
         return $this;
+    }
+
+    /**
+     * @param int $retries
+     */
+    public static function maxRetries($retries)
+    {
+        self::$maxRetries = abs($retries);
     }
 
     /**
@@ -199,9 +213,9 @@ abstract class AbstractAPI
                                           ResponseInterface $response = null
                                        ) {
             // Limit the number of retries to 2
-            if ($retries <= 2 && $response && $body = $response->getBody()) {
+            if ($retries <= self::$maxRetries && $response && $body = $response->getBody()) {
                 // Retry on server errors
-                if (stripos($body, 'errcode') && (stripos($body, '40001') || stripos($body, '42001'))) {
+                if (stripos($body, 'errcode') !== false && (stripos($body, '40001') !== false || stripos($body, '42001') !== false)) {
                     $field = $this->accessToken->getQueryName();
                     $token = $this->accessToken->getToken(true);
 

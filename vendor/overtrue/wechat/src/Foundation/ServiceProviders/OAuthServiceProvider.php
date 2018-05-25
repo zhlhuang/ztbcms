@@ -19,6 +19,7 @@
  * This source file is subject to the MIT license that is bundled
  * with this source code in the file LICENSE.
  */
+
 namespace EasyWeChat\Foundation\ServiceProviders;
 
 use Overtrue\Socialite\SocialiteManager as Socialite;
@@ -43,15 +44,17 @@ class OAuthServiceProvider implements ServiceProviderInterface
         $pimple['oauth'] = function ($pimple) {
             $callback = $this->prepareCallbackUrl($pimple);
             $scopes = $pimple['config']->get('oauth.scopes', []);
-            $socialite = (new Socialite(
-                [
-                    'wechat' => [
-                        'client_id' => $pimple['config']['app_id'],
-                        'client_secret' => $pimple['config']['secret'],
-                        'redirect' => $callback,
-                    ],
-                ]
-            ))->driver('wechat');
+            $config = [
+                'wechat' => [
+                    'client_id' => $pimple['config']['app_id'],
+                    'client_secret' => $pimple['config']['secret'],
+                    'redirect' => $callback,
+                ],
+            ];
+            if ($pimple['config']->has('guzzle')) {
+                $config['guzzle'] = $pimple['config']['guzzle'];
+            }
+            $socialite = (new Socialite($config))->driver('wechat');
 
             if (!empty($scopes)) {
                 $socialite->scopes($scopes);
@@ -71,9 +74,11 @@ class OAuthServiceProvider implements ServiceProviderInterface
     private function prepareCallbackUrl($pimple)
     {
         $callback = $pimple['config']->get('oauth.callback');
+        if (0 === stripos($callback, 'http')) {
+            return $callback;
+        }
         $baseUrl = $pimple['request']->getSchemeAndHttpHost();
-        $callback = stripos($callback, 'http') === 0 ? $callback : $baseUrl.'/'.ltrim($callback, '/');
 
-        return $callback;
+        return $baseUrl.'/'.ltrim($callback, '/');
     }
 }

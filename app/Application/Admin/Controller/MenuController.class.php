@@ -28,6 +28,7 @@ class MenuController extends AdminBase {
         $tree = new \Tree();
         $tree->icon = array('&nbsp;&nbsp;&nbsp;│ ', '&nbsp;&nbsp;&nbsp;├─ ', '&nbsp;&nbsp;&nbsp;└─ ');
         $tree->nbsp = '&nbsp;&nbsp;&nbsp;';
+        $array = [];
         foreach ($result as $r) {
             $r['str_manage'] = '<a href="' . U("Menu/add", array("parentid" => $r['id'])) . '">添加子菜单</a> | <a href="' . U("Menu/edit", array("id" => $r['id'])) . '">修改</a> | <a class="J_ajax_del" href="' . U("Menu/delete", array("id" => $r['id'])) . '">删除</a> ';
             $r['status'] = $r['status'] ? '<span style="color:green;">显示</span>' : '<span style="color:red;">不显示</span>';
@@ -37,8 +38,9 @@ class MenuController extends AdminBase {
         $str = "<tr>
 	<td align='center'><input name='listorders[\$id]' type='text' size='3' value='\$listorder' class='input'></td>
 	<td align='center'>\$id</td>
-	<td >\$spacer\$name</td>
-                    <td align='center'>\$status</td>
+	<td >\$spacer\$name(\$app/\$controller/\$action)</td>
+	<td align='center' style='text-align: left'>\$remark</td>
+    <td align='center'>\$status</td>
 	<td align='center'>\$str_manage</td>
 	</tr>";
         $categorys = $tree->get_tree(0, $str);
@@ -116,6 +118,56 @@ class MenuController extends AdminBase {
         } else {
             $this->error("删除失败！");
         }
+    }
+
+    //取得模块名称
+    public function public_getModule(){
+        //取得模块目录名称
+        $dirs = glob(APP_PATH . '*');
+        $all_module = [];
+        foreach ($dirs as $path) {
+            if (is_dir($path)) {
+                //目录名称
+                $path = basename($path);
+                $all_module[] = $path;
+            }
+        }
+        $this->ajaxReturn(self::createReturn(true, $all_module));
+    }
+
+    //取得控制器名称
+    public function public_getController($module){
+        if(empty($module)) return null;
+        $module_path = APP_PATH . '/' . $module . '/Controller/';  //控制器路径
+        if(!is_dir($module_path)) return null;
+        $module_path .= '/*.class.php';
+        $ary_files = glob($module_path);
+        $data = [];
+        foreach ($ary_files as $file) {
+            if (is_dir($file)) {
+                continue;
+            } else {
+                $data[]  =  basename($file,  C('DEFAULT_C_LAYER').'.class.php');
+            }
+        }
+        $this->ajaxReturn(self::createReturn(true, $data));
+    }
+
+    //取得方法名称
+    public function public_getAction($controller){
+        if(empty($controller)) return null;
+        $con = A($controller);
+        $functions = get_class_methods($con);
+        //排除部分方法
+        $inherents  =  array('_initialize','__construct','getActionName','isAjax','display','show','fetch','buildHtml','assign','__set','get','__get','__isset','__call','error','success','ajaxReturn','redirect','__destruct', '_empty', 'logo', 'page', 'createReturn', 'app', 'initSite', 'getModelObject', 'basePage', 'baseAdd', 'baseEdit', 'baseDelete', 'verify', 'theme');
+
+        $data = [];
+        foreach ($functions as $func){
+            if(!in_array($func, $inherents)){
+                $data[] = $func;
+            }
+        }
+        $this->ajaxReturn(self::createReturn(true, $data));
     }
 
 }

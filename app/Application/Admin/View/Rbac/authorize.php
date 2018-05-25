@@ -1,4 +1,4 @@
-<?php if (!defined('CMS_VERSION')) exit(); ?>
+ 
 <Admintemplate file="Common/Head"/>
 <body class="J_scroll_fixed">
 <div class="wrap J_check_wrap">
@@ -51,7 +51,7 @@ var setting = {
     }
 };
 //节点数据
-var zNodes ={$json};
+var zNodes = JSON.parse('{$json}');
 //zTree对象
 var zTree = null;
 Wind.css('zTree');
@@ -67,13 +67,6 @@ $(function(){
 var ajaxForm_list = $('form.J_ajaxFsorm');
 if (ajaxForm_list.length) {
     Wind.use('ajaxForm', 'artDialog', function () {
-        if ($.browser.msie) {
-            //ie8及以下，表单中只有一个可见的input:text时，会整个页面会跳转提交
-            ajaxForm_list.on('submit', function (e) {
-                //表单中只有一个可见的input:text时，enter提交无效
-                e.preventDefault();
-            });
-        }
 
         $('button.J_ajax_submit_btn').bind('click', function (e) {
             e.preventDefault();
@@ -82,16 +75,6 @@ if (ajaxForm_list.length) {
             var btn = $(this),
                 form = btn.parents('form.J_ajaxFsorm');
 
-            //ie处理placeholder提交问题
-            if ($.browser.msie) {
-                form.find('[placeholder]').each(function () {
-                    var input = $(this);
-                    if (input.val() == input.attr('placeholder')) {
-                        input.val('');
-                    }
-                });
-            }
-			
 			//处理被选中的数据
 			form.find('input[name="menuid"]').val("");
 			var  nodes = zTree.getCheckedNodes(true); 

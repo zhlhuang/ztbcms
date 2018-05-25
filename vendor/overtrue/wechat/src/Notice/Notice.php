@@ -15,9 +15,10 @@
  * @author    overtrue <i@overtrue.me>
  * @copyright 2015 overtrue <i@overtrue.me>
  *
- * @link      https://github.com/overtrue
- * @link      http://overtrue.me
+ * @see      https://github.com/overtrue
+ * @see      http://overtrue.me
  */
+
 namespace EasyWeChat\Notice;
 
 use EasyWeChat\Core\AbstractAPI;
@@ -42,12 +43,19 @@ class Notice extends AbstractAPI
      * @var array
      */
     protected $message = [
-                          'touser' => '',
-                          'template_id' => '',
-                          'url' => '',
-                          'topcolor' => '#FF0000',
-                          'data' => [],
-                         ];
+        'touser' => '',
+        'template_id' => '',
+        'url' => '',
+        'data' => [],
+    ];
+
+    /**
+     * Required attributes.
+     *
+     * @var array
+     */
+    protected $required = ['touser', 'template_id'];
+
     /**
      * Message backup.
      *
@@ -75,12 +83,26 @@ class Notice extends AbstractAPI
     }
 
     /**
+     * Set default color.
+     *
+     * @param string $color example: #0f0f0f
+     *
+     * @return $this
+     */
+    public function defaultColor($color)
+    {
+        $this->defaultColor = $color;
+
+        return $this;
+    }
+
+    /**
      * Set industry.
      *
      * @param int $industryOne
      * @param int $industryTwo
      *
-     * @return bool
+     * @return \EasyWeChat\Support\Collection
      */
     public function setIndustry($industryOne, $industryTwo)
     {
@@ -95,7 +117,7 @@ class Notice extends AbstractAPI
     /**
      * Get industry.
      *
-     * @return array
+     * @return \EasyWeChat\Support\Collection
      */
     public function getIndustry()
     {
@@ -107,7 +129,7 @@ class Notice extends AbstractAPI
      *
      * @param string $shortId
      *
-     * @return string
+     * @return \EasyWeChat\Support\Collection
      */
     public function addTemplate($shortId)
     {
@@ -119,7 +141,7 @@ class Notice extends AbstractAPI
     /**
      * Get private templates.
      *
-     * @return array
+     * @return \EasyWeChat\Support\Collection
      */
     public function getPrivateTemplates()
     {
@@ -131,7 +153,7 @@ class Notice extends AbstractAPI
      *
      * @param string $templateId
      *
-     * @return array
+     * @return \EasyWeChat\Support\Collection
      */
     public function deletePrivateTemplate($templateId)
     {
@@ -145,24 +167,16 @@ class Notice extends AbstractAPI
      *
      * @param $data
      *
-     * @return mixed
+     * @return \EasyWeChat\Support\Collection
      *
      * @throws \EasyWeChat\Core\Exceptions\InvalidArgumentException
      */
     public function send($data = [])
     {
-        $params = array_merge([
-                   'touser' => '',
-                   'template_id' => '',
-                   'url' => '',
-                   'topcolor' => '',
-                   'data' => [],
-                  ], $data);
-
-        $required = ['touser', 'template_id'];
+        $params = array_merge($this->message, $data);
 
         foreach ($params as $key => $value) {
-            if (in_array($key, $required, true) && empty($value) && empty($this->message[$key])) {
+            if (in_array($key, $this->required, true) && empty($value) && empty($this->message[$key])) {
                 throw new InvalidArgumentException("Attribute '$key' can not be empty!");
             }
 
@@ -173,7 +187,7 @@ class Notice extends AbstractAPI
 
         $this->message = $this->messageBackup;
 
-        return $this->parseJSON('json', [self::API_SEND_NOTICE, $params]);
+        return $this->parseJSON('json', [static::API_SEND_NOTICE, $params]);
     }
 
     /**
@@ -192,15 +206,15 @@ class Notice extends AbstractAPI
                 'uses' => 'template_id',
                 'to' => 'touser',
                 'receiver' => 'touser',
-                'color' => 'topcolor',
-                'topColor' => 'topcolor',
                 'url' => 'url',
                 'link' => 'url',
                 'data' => 'data',
                 'with' => 'data',
+                'formId' => 'form_id',
+                'prepayId' => 'form_id',
                ];
 
-        if (0 === stripos($method, 'with')) {
+        if (0 === stripos($method, 'with') && strlen($method) > 4) {
             $method = lcfirst(substr($method, 4));
         }
 

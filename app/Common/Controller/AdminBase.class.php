@@ -12,16 +12,24 @@ use Libs\System\RBAC;
 //定义是后台
 define('IN_ADMIN', true);
 
+/**
+ * 后台基类
+ */
 class AdminBase extends CMS {
 
-	//初始化
+    protected $uid;
+    protected $userInfo;
+
+    //初始化
 	protected function _initialize() {
 		C(array(
 			"USER_AUTH_ON" => true, //是否开启权限认证
 			"USER_AUTH_TYPE" => 1, //默认认证类型 1 登录认证 2 实时认证
-			"REQUIRE_AUTH_MODULE" => "", //需要认证模块
-			"NOT_AUTH_MODULE" => "Public", //无需认证模块
-			"USER_AUTH_GATEWAY" => U("Admin/Public/login"), //登录地址
+			"REQUIRE_AUTH_CONTROLLER" => "", //需要认证控制器
+			"NOT_AUTH_CONTROLLER" => "Public", //无需认证控制器
+            "REQUIRE_AUTH_ACTION" => "", //需要认证的操作
+            "NOT_AUTH_ACTION" => "", //无需认证的操作
+			"USER_AUTH_GATEWAY" => C('USER_AUTH_GATEWAY', null , U("Admin/Public/login")) , //登录地址
 		));
 		if (false == RBAC::AccessDecision(MODULE_NAME)) {
 			//检查是否登录
@@ -47,13 +55,15 @@ class AdminBase extends CMS {
 		if (empty($uid)) {
 			return false;
 		}
-		//获取当前登录用户信息
+        $this->uid = $uid;
+        //获取当前登录用户信息
 		$userInfo = User::getInstance()->getInfo();
 		if (empty($userInfo)) {
 			User::getInstance()->logout();
 			return false;
 		}
-		//是否锁定
+        $this->userInfo = $userInfo;
+        //是否锁定
 		if (!$userInfo['status']) {
 			User::getInstance()->logout();
 			$this->error('您的帐号已经被锁定！', U('Public/login'));

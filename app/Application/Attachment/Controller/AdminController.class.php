@@ -16,7 +16,6 @@ class AdminController extends AdminBase {
 	const isadmin = 1; //是否后台
 
 	//初始化
-
 	protected function _initialize() {
 		//除了swfupload不验证，其他都验证
 		if (ACTION_NAME != 'swfupload') {
@@ -111,7 +110,7 @@ class AdminController extends AdminBase {
 		$where = array();
 		$db = M("Attachment");
 		$filename = I('get.filename', '', '');
-		$args = I('get.args', '', '');
+		$args = I('get.args', '1,jpg|jpeg|gif|png|bmp,1,,,0', '');
 		$args = explode(",", $args);
 		empty($filename) ?: $where['filename'] = array('like', '%' . $filename . '%');
 		$uploadtime = I('get.uploadtime', '', '');
@@ -129,7 +128,9 @@ class AdminController extends AdminBase {
 		$where['isimage'] = array("eq", 1);
 		$count = $db->where($where)->count();
 		//启用分页
-		$page = $this->page($count, 12);
+        $limit = I('get.limit', 12);
+        $page = I('get.page', 1);
+        $page = $this->page($count, $limit, $page);
 		$data = $db->where($where)->order(array("uploadtime" => "DESC"))->limit($page->firstRow . ',' . $page->listRows)->select();
 		foreach ($data as $k => $v) {
 			$data[$k]['filepath'] = $config['sitefileurl'] . $data[$k]['filepath'];
@@ -162,6 +163,8 @@ class AdminController extends AdminBase {
 					$file_arr = explode('_', $basename);
 					$basename = array_pop($file_arr);
 				}
+                $width = isset($width) ? $width : 'auto';
+                $height = isset($height) ? $height : 'auto';
 				$new_file = $Prefix . $width . '_' . $height . '_' . $basename;
 				//栏目ID
 				$catid = I('get.catid', 0, 'intval');
@@ -201,6 +204,7 @@ class AdminController extends AdminBase {
 		$config = cache('Config');
 		$aid = I('get.aid');
 		$info = M("Attachment")->where(array('aid' => $aid))->find();
+        $thumbs = [];
 		if ($info) {
 			$infos = glob(dirname($this->path . $info['filepath']) . '/thumb_*' . basename($info['filepath']));
 			foreach ($infos as $n => $thumb) {

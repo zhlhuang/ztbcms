@@ -13,7 +13,7 @@ return array(
     //模块介绍地址
     'address' => 'http://www.ztbcms.com',
     //模块作者
-    'author' => 'ZtbCMS',
+    'author' => 'ZTBCMS',
     //作者地址
     'authorsite' => 'http://www.ztbcms.com',
     //作者邮箱
@@ -118,5 +118,23 @@ return array(
             'type' => 1,
             'phpfile:ContentDeleteEndBehavior|module:Member',
         ),
+        'member_register' => array(
+            'title' => '会员注册后行为调用',
+            'remark' => '会员注册后行为调用',
+            'type' => 1,
+            'phpfile:MemberRegisterBehavior|module:Member',
+        ),
+        'member_verify' => array(
+            'title' => '会员审核通过行为调用',
+            'remark' => '会员审核通过行为调用',
+            'type' => 1,
+            'phpfile:MemberVerifyBehavior|module:Member',
+        ),
+        'member_unverify' => array(
+            'title' => '会员审核取消行为调用',
+            'remark' => '会员审核取消行为调用',
+            'type' => 1,
+            'phpfile:MemberUnverifyBehavior|module:Member',
+        )
     ),
 );

@@ -1,4 +1,4 @@
-<?php if (!defined('CMS_VERSION')) exit(); ?>
+ 
 <Admintemplate file="Common/Head"/>
 <body class="J_scroll_fixed">
 <div class="wrap J_check_wrap">
@@ -10,15 +10,13 @@
     </ul>
   </div>
   <div class="mb10">
-		<a href="javascript:void(0)" onClick="javascript:openwinx('{:U("Content/add",array("catid"=>$catid))}','')" class="btn" title="添加内容"><span class="add"></span>添加内容</a>
-         栏目列表生成：<select class="select_2" onChange="window.location.href=''+this.value+''">
-       <option value="{:U('Createhtml/categoryhtml',array('catid'=>$catid))}" >列表生成</option>
-       <option value="{:U('Createhtml/categoryhtml',array('catid'=>$catid))}">生成当前栏目列表</option>
-       <if condition=" $parentid "> 
-       <option value="{:U('Createhtml/categoryhtml',array('catid'=>$parentid))}">生成父栏目列表</option>
-       </if>
-    </select>
-    <a href="{$url}" target="_blank"  class="btn" title="访问该栏目">访问该栏目</a>
+		<a href="javascript:void(0)" onClick="javascript:openwinx('{:U("Content/add",array("catid"=>$catid))}','')" class="btn btn-default" title="添加内容"><span class="add"></span>添加内容</a>
+        <a href="{$url}" target="_blank"  class="btn btn-default" title="访问该栏目">访问该栏目</a>
+
+        <if condition="isModuleInstall('Transport')">
+          <a class="btn btn-primary" href="{:U('Transport/Export/classlist', I('get.'))}&_filter[]=status&_operator[]=eq&_value[]={:I('status', 99)}" target="_blank">导出到Excel</a>
+        </if>
+
   </div>
   <div class="h_a">搜索</div>
   <form method="post" action="{:U('classlist',array('catid'=>$catid))}">
@@ -29,25 +27,37 @@
       <div class="mb10"> 
         <section style="display: inline;">
             <span class="mr20">时间：
-            <input type="text" name="start_time" class="input length_2 J_date" value="{$Think.get.start_time}">-<input type="text" class="input length_2 J_date" name="end_time" value="{$Think.get.end_time}" >
+            <input type="text" name="start_time1" class="input length_2 J_date" value="{$Think.get.start_time1}">-<input type="text" class="input length_2 J_date" name="end_time1" value="{$Think.get.end_time1}" >
 
         </section>
 
+        <section style="display: none;">
+          起始时间：
+          <input type="text" value="inputtime" name="_filter[1]">
+          <input type="text" value="EGT" name="_operator[1]">
+          <input type="text" value="{$_value[1]}" name="_value[1]" id="value1">
+          结束时间:
+          <input type="text" value="inputtime" name="_filter[2]">
+          <input type="text" value="ELT" name="_operator[2]">
+          <input type="text" value="{$_value[2]}" name="_value[2]" id="value2">
+        </section>
+
+
         <section style="display: inline;">
           <select name="_filter[0]" class="select_2">
+            <option value="id" <if condition=" $_filter[0] == 'id' "> selected</if>>ID</option>
             <option value="username" <if condition=" $_filter[0] == 'username' "> selected</if>>发布人</option>
-            <option value="id" <if condition=" $_filter[0] == 'id' "> selected</if>>用户ID</option>
             <option value="title" <if condition=" $_filter[0] == 'title' "> selected</if>>标题</option>
           </select>
 
-          <select name="_operater[0]" class="select_2">
-            <option value="EQ" <if condition=" $_operater[0] == 'EQ' "> selected</if>>等于</option>
-            <option value="NEQ" <if condition=" $_operater[0] == 'NEQ' "> selected</if>>不等于</option>
-            <option value="GT" <if condition=" $_operater[0] == 'GT' "> selected</if>>大于</option>
-            <option value="EGT" <if condition=" $_operater[0] == 'EGT' "> selected</if>>大于等于</option>
-            <option value="LT" <if condition=" $_operater[0] == 'LT' "> selected</if>>小于</option>
-            <option value="ELT" <if condition=" $_operater[0] == 'ELT' "> selected</if>>小于等于</option>
-            <option value="LIKE" <if condition=" $_operater[0] == 'LIKE' "> selected</if>>模糊查询</option>
+          <select name="_operator[0]" class="select_2">
+            <option value="EQ" <if condition=" $_operator[0] == 'EQ' "> selected</if>>等于</option>
+            <option value="NEQ" <if condition=" $_operator[0] == 'NEQ' "> selected</if>>不等于</option>
+            <option value="GT" <if condition=" $_operator[0] == 'GT' "> selected</if>>大于</option>
+            <option value="EGT" <if condition=" $_operator[0] == 'EGT' "> selected</if>>大于等于</option>
+            <option value="LT" <if condition=" $_operator[0] == 'LT' "> selected</if>>小于</option>
+            <option value="ELT" <if condition=" $_operator[0] == 'ELT' "> selected</if>>小于等于</option>
+            <option value="LIKE" <if condition=" $_operator[0] == 'LIKE' "> selected</if>>模糊查询</option>
           </select>
 
           <input class="input length_2" type="text" name="_value[0]" value="{$_value[0]}">
@@ -116,13 +126,13 @@
     <div class="btn_wrap">
       <div class="btn_wrap_pd">
         <label class="mr20"><input type="checkbox" class="J_check_all" data-direction="y" data-checklist="J_check_y">全选</label>                
-        <button class="btn J_ajax_submit_btn" type="submit" data-action="{:U('Content/listorder',array('catid'=>$catid))}">排序</button>
-        <button class="btn J_ajax_submit_btn" type="submit" data-action="{:U('Content/public_check',array('catid'=>$catid))}">审核</button>
-        <button class="btn J_ajax_submit_btn" type="submit" data-action="{:U('Content/public_nocheck',array('catid'=>$catid))}">取消审核</button>
-        <button class="btn J_ajax_submit_btn" type="submit" data-action="{:U('Content/delete',array('catid'=>$catid))}">删除</button>
-        <button class="btn" type="button" onClick="pushs()">推送</button>
-        <button class="btn" type="button" id="J_Content_remove">批量移动</button>
-        <button class="btn J_ajax_submit_btn" type="submit" data-action="{:U('Createhtml/batch_show',array('catid'=>$catid,'steps'=>0))}">批量生成HTML</button>
+        <button class="btn btn-primary J_ajax_submit_btn" type="submit" data-action="{:U('Content/listorder',array('catid'=>$catid))}">排序</button>
+        <button class="btn btn-primary J_ajax_submit_btn" type="submit" data-action="{:U('Content/public_check',array('catid'=>$catid))}">审核</button>
+        <button class="btn btn-danger J_ajax_submit_btn" type="submit" data-action="{:U('Content/public_nocheck',array('catid'=>$catid))}">取消审核</button>
+        <button class="btn btn-danger J_ajax_submit_btn" type="submit" data-action="{:U('Content/delete',array('catid'=>$catid))}">删除</button>
+        <button class="btn btn-primary " type="button" onClick="pushs()">推送</button>
+        <button class="btn btn-primary " type="button" id="J_Content_remove">批量移动</button>
+        <button class="btn btn-primary J_ajax_submit_btn" type="submit" data-action="{:U('Createhtml/batch_show',array('catid'=>$catid,'steps'=>0))}">批量生成HTML</button>
       </div>
     </div>
   </form>
@@ -146,7 +156,7 @@ $(function () {
             var str = 0;
             var id = tag = '';
             $("input[name='ids[]']").each(function () {
-                if ($(this).attr('checked')) {
+                if ($(this).prop('checked')) {
                     str = 1;
                     id += tag + $(this).val();
                     tag = '|';
@@ -191,7 +201,7 @@ function pushs() {
     var str = 0;
     var id = tag = '';
     $("input[name='ids[]']").each(function () {
-        if ($(this).attr('checked')) {
+        if ($(this).prop('checked')) {
             str = 1;
             id += tag + $(this).val();
             tag = '|';
@@ -214,5 +224,41 @@ function pushs() {
     });
 }
 </script>
+
+<script>
+  (function($){
+    $start_time = $("input#value1");
+    $end_time = $("input#value2");
+    $("input[name=start_time1]").on('blur', function(){
+      var val = $(this).val();
+      if(val !== ''){
+        var vs = val.split('-');
+        vs[0] = parseInt(vs[0]);
+        vs[1] = parseInt(vs[1])-1; //从0开始
+        vs[2] = parseInt(vs[2]);
+
+        var date = new Date(vs[0], vs[1], vs[2], 0,0,0,0);
+        $start_time.val(parseInt(date.getTime()/1000));
+      }else{
+        $start_time.val('');
+      }
+    });
+
+    $("input[name=end_time1]").on('blur', function(){
+      var val = $(this).val();
+      if(val !== ''){
+        var vs = val.split('-');
+        vs[0] = parseInt(vs[0]);
+        vs[1] = parseInt(vs[1])-1;//从0开始
+        vs[2] = parseInt(vs[2])+1;
+        var date = new Date(vs[0], vs[1], vs[2], 0, 0, 0, 0);
+        $end_time.val(parseInt(date.getTime()/1000) - 1);
+      }else{
+        $end_time.val('');
+      }
+    });
+  })(jQuery);
+</script>
+
 </body>
 </html>

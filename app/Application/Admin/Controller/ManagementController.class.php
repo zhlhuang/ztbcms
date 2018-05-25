@@ -22,9 +22,20 @@ class ManagementController extends AdminBase {
                 'name' => '返回角色管理',
             );
             $this->assign('menuReturn', $menuReturn);
+        } else {
+            if (!User::getInstance()->isAdministrator()) {
+                //如果非超级管理员，只能管理下级角色的成员
+                $res = D('Admin/Role')->field('id')->where(['parentid' => User::getInstance()->role_id])->select();
+                $role_ids = [];
+                foreach ($res as $val) {
+                    $role_ids[] = $val['id'];
+                }
+                //如果没有找到下级role_ids 则默认为0
+                $where['role_id'] = ['in', $role_ids ? $role_ids : '0'];
+            }
         }
         $count = D('Admin/User')->where($where)->count();
-        $page = $this->page($count, 20);
+        $page = $this->page($count, 20, I('page', 1));
         $User = D('Admin/User')->where($where)->limit($page->firstRow . ',' . $page->listRows)->order(array('id' => 'DESC'))->select();
         $this->assign("Userlist", $User);
         $this->assign("Page", $page->show());
@@ -56,7 +67,8 @@ class ManagementController extends AdminBase {
             if (empty($data)) {
                 $this->error('该信息不存在！');
             }
-            $this->assign("role", D('Admin/Role')->selectHtmlOption($data['role_id'], 'name="role_id"'));
+            $myid = User::getInstance()->isAdministrator() ? 0 : User::getInstance()->role_id;
+            $this->assign("role", D('Admin/Role')->selectChildHtmlOption($myid, $data['role_id'], 'name="role_id"'));
             $this->assign("data", $data);
             $this->display();
         }
@@ -72,7 +84,8 @@ class ManagementController extends AdminBase {
                 $this->error($error ? $error : '添加失败！');
             }
         } else {
-            $this->assign("role", D('Admin/Role')->selectHtmlOption(0, 'name="role_id"'));
+            $myid = User::getInstance()->isAdministrator() ? 0 : User::getInstance()->role_id;
+            $this->assign("role", D('Admin/Role')->selectChildHtmlOption($myid, 0, 'name="role_id"'));
             $this->display();
         }
     }
@@ -83,14 +96,14 @@ class ManagementController extends AdminBase {
         if (empty($id)) {
             $this->error("没有指定删除对象！");
         }
-        if ((int) $id == User::getInstance()->id) {
+        if ((int)$id == User::getInstance()->id) {
             $this->error("你不能删除你自己！");
         }
         //执行删除
         if (D('Admin/User')->deleteUser($id)) {
             $this->success("删除成功！");
         } else {
-            $this->error(D('Admin/User')->getError()? : '删除失败！');
+            $this->error(D('Admin/User')->getError() ?: '删除失败！');
         }
     }
 

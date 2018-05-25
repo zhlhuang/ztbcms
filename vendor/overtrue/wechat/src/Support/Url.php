@@ -15,9 +15,10 @@
  * @author    overtrue <i@overtrue.me>
  * @copyright 2015 overtrue <i@overtrue.me>
  *
- * @link      https://github.com/overtrue
- * @link      http://overtrue.me
+ * @see      https://github.com/overtrue
+ * @see      http://overtrue.me
  */
+
 namespace EasyWeChat\Support;
 
 /**
@@ -32,9 +33,16 @@ class Url
      */
     public static function current()
     {
-        $protocol = (!empty($_SERVER['HTTPS'])
-                        && $_SERVER['HTTPS'] !== 'off'
-                        || $_SERVER['SERVER_PORT'] === 443) ? 'https://' : 'http://';
+        if (defined('PHPUNIT_RUNNING')) {
+            return 'http://localhost';
+        }
+
+        $protocol = 'http://';
+
+        if (!empty($_SERVER['HTTPS'])
+            || (!empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https')) {
+            $protocol = 'https://';
+        }
 
         return $protocol.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];
     }

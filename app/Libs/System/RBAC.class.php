@@ -12,7 +12,7 @@ class RBAC {
 
 	/**
 	 * 当前登录下权限检查
-	 * @param type $map [模块/控制器/方法]，没有时，自动获取当前进行判断
+	 * @param string $map [模块/控制器/方法]，没有时，自动获取当前进行判断
 	 * @return boolean
 	 */
 	static public function authenticate($map = '') {
@@ -50,12 +50,12 @@ class RBAC {
 			$_controller = array();
 			//动作
 			$_action = array();
-			if ("" != C('REQUIRE_AUTH_MODULE')) {
-				//需要认证的模块
-				$_controller['yes'] = explode(',', strtoupper(C('REQUIRE_AUTH_MODULE')));
+			if ("" != C('REQUIRE_AUTH_CONTROLLER')) {
+				//需要认证的控制器
+				$_controller['yes'] = explode(',', strtoupper(C('REQUIRE_AUTH_CONTROLLER')));
 			} else {
-				//无需认证的模块
-				$_controller['no'] = explode(',', strtoupper(C('NOT_AUTH_MODULE')));
+				//无需认证的控制器
+				$_controller['no'] = explode(',', strtoupper(C('NOT_AUTH_CONTROLLER')));
 			}
 			//检查当前模块是否需要认证
 			if ((!empty($_controller['no']) && !in_array(strtoupper(CONTROLLER_NAME), $_controller['no'])) || (!empty($_controller['yes']) && in_array(strtoupper(CONTROLLER_NAME), $_controller['yes']))) {
@@ -160,15 +160,11 @@ class RBAC {
 		return true;
 	}
 
-	/**
-	+----------------------------------------------------------
-	 * 取得当前认证号的所有权限列表
-	+----------------------------------------------------------
-	 * @param integer $authId 用户ID
-	+----------------------------------------------------------
-	 * @access public
-	+----------------------------------------------------------
-	 */
+    /**
+     * 取得当前认证号的所有权限列表
+     * @param $authId
+     * @return array|bool
+     */
 	static public function getAccessList($authId) {
 		//用户信息
 		$userInfo = User::getInstance()->getInfo();
@@ -193,5 +189,21 @@ class RBAC {
 		}
 		return $accessList;
 	}
+
+    /**
+     * 检测登陆用户对某个接口的访问权限
+     * @param $moduelName
+     * @param $controllerName
+     * @param $actionName
+     * @return bool
+     */
+    static function ableAccess($moduelName, $controllerName, $actionName){
+        $accessList = session("_ACCESS_LIST");
+
+        if(!empty($accessList[$moduelName]) && !empty($accessList[$moduelName][$controllerName]) && !empty($accessList[$moduelName][$controllerName][$actionName])){
+            return true;
+        }
+        return false;
+    }
 
 }

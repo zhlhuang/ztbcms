@@ -19,7 +19,7 @@ use JsonSerializable;
  */
 class User implements ArrayAccess, UserInterface, JsonSerializable
 {
-    use AttributeTrait;
+    use HasAttributes;
 
     /**
      * User constructor.
@@ -39,6 +39,16 @@ class User implements ArrayAccess, UserInterface, JsonSerializable
     public function getId()
     {
         return $this->getAttribute('id');
+    }
+
+    /**
+     * Get the username for the user.
+     *
+     * @return string
+     */
+    public function getUsername()
+    {
+        return $this->getAttribute('username', $this->getId());
     }
 
     /**
@@ -96,6 +106,26 @@ class User implements ArrayAccess, UserInterface, JsonSerializable
     }
 
     /**
+     * @param string $provider
+     *
+     * @return $this
+     */
+    public function setProviderName($provider)
+    {
+        $this->setAttribute('provider', $provider);
+
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getProviderName()
+    {
+        return $this->getAttribute('provider');
+    }
+
+    /**
      * Get the authorized token.
      *
      * @return \Overtrue\Socialite\AccessToken
@@ -112,7 +142,7 @@ class User implements ArrayAccess, UserInterface, JsonSerializable
      */
     public function getAccessToken()
     {
-        return $this->token;
+        return $this->getToken();
     }
 
     /**

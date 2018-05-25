@@ -26,8 +26,6 @@ class ParameterBag implements \IteratorAggregate, \Countable
     protected $parameters;
 
     /**
-     * Constructor.
-     *
      * @param array $parameters An array of parameters
      */
     public function __construct(array $parameters = array())
@@ -190,10 +188,10 @@ class ParameterBag implements \IteratorAggregate, \Countable
     /**
      * Filter key.
      *
-     * @param string $key     Key.
-     * @param mixed  $default Default = null.
-     * @param int    $filter  FILTER_* constant.
-     * @param mixed  $options Filter options.
+     * @param string $key     Key
+     * @param mixed  $default Default = null
+     * @param int    $filter  FILTER_* constant
+     * @param mixed  $options Filter options
      *
      * @see http://php.net/manual/en/function.filter-var.php
      *

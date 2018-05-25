@@ -1,4 +1,4 @@
-<?php if (!defined('CMS_VERSION')) exit(); ?>
+ 
 <Admintemplate file="Common/Head"/>
 <body class="J_scroll_fixed">
 <div class="wrap J_check_wrap">
@@ -9,11 +9,11 @@
       <table width="100%"  class="table_form">
         <tr>
           <th width="120">模型名称：</th>
-          <td class="y-bg"><input type="text" class="input" name="name" id="name" size="30" value="{$data.name}" /></td>
+          <td class="y-bg"><input type="text" class="input" name="name" id="name" size="30" value="{$data.name}" placeholder="中文名" /></td>
         </tr>
         <tr>
           <th>模型表键名：</th>
-          <td class="y-bg"><input type="text" class="input" name="tablename" id="tablename" size="30" value="{$data.tablename}" /></td>
+          <td class="y-bg"><input type="text" class="input" name="tablename" id="tablename" size="30" value="{$data.tablename}"  placeholder="英文，小写"/></td>
         </tr>
         <tr>
           <th>描述：</th>
@@ -67,7 +67,19 @@
             <span class="gray">模板名称<b>不需要</b>带后缀，不设置为使用默认列表，增加列表模板可在/app/Application/Content/View/Listtemplate/里增加文件</span>
             </td>
         </tr>
-          <!--  栏目模板选择 -->
+
+          <tr>
+              <th>后台信息添加模板：</th>
+              <td class="y-bg"><input type="text" class="input" name="add_customtemplate" value="{$data.add_customtemplate}"  size="30" placeholder="默认后台列表页，如add_xx.php"/>
+                  <span class="gray">模板名称<b>不需要</b>后缀，不设置为使用默认列表，增加列表模板可在 app/Application/Content/View/Addtemplate/里增加文件</span>
+              </td>
+          </tr>
+          <tr>
+              <th>后台信息编辑模板：</th>
+              <td class="y-bg"><input type="text" class="input" name="edit_customtemplate" value="{$data.edit_customtemplate}"  size="30" placeholder="默认后台列表页，如edit_xx.php"/>
+                  <span class="gray">模板名称<b>不需要</b>后缀，不设置为使用默认列表，增加列表模板可在 app/Application/Content/View/Edittemplate/里增加文件</span>
+              </td>
+          </tr>
 
 
       </table>

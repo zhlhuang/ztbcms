@@ -11,7 +11,7 @@ CREATE TABLE `cms_access` (
   `action` varchar(255) NOT NULL DEFAULT '' COMMENT '方法',
   `status` tinyint(4) NOT NULL DEFAULT '0' COMMENT '是否有效',
   KEY `role_id` (`role_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='角色权限表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='角色权限表';
 
 -- ----------------------------
 -- Records of cms_access
@@ -27,7 +27,7 @@ CREATE TABLE `cms_admin_panel` (
   `name` char(32) NOT NULL DEFAULT '' COMMENT '菜单名',
   `url` char(255) NOT NULL DEFAULT '' COMMENT '菜单地址',
   UNIQUE KEY `userid` (`mid`,`userid`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='常用菜单';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='常用菜单';
 
 -- ----------------------------
 -- Records of cms_admin_panel
@@ -39,23 +39,23 @@ CREATE TABLE `cms_admin_panel` (
 DROP TABLE IF EXISTS `cms_attachment`;
 CREATE TABLE `cms_attachment` (
   `aid` int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT '附件ID',
-  `module` char(15) NOT NULL DEFAULT '' COMMENT '模块名称',
+  `module` varchar(64) NOT NULL DEFAULT '' COMMENT '模块名称',
   `catid` smallint(5) NOT NULL DEFAULT '0' COMMENT '栏目ID',
-  `filename` char(50) NOT NULL DEFAULT '' COMMENT '上传附件名称',
-  `filepath` char(200) NOT NULL DEFAULT '' COMMENT '附件路径',
+  `filename` varchar(64) NOT NULL DEFAULT '' COMMENT '上传附件名称',
+  `filepath` varchar(256) NOT NULL DEFAULT '' COMMENT '附件路径',
   `filesize` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '附件大小',
-  `fileext` char(10) NOT NULL DEFAULT '' COMMENT '附件扩展名',
+  `fileext` varchar(16) NOT NULL DEFAULT '' COMMENT '附件扩展名',
   `isimage` tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT '是否为图片 1为图片',
   `isthumb` tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT '是否为缩略图 1为缩略图',
   `userid` mediumint(8) unsigned NOT NULL DEFAULT '0' COMMENT '上传用户ID',
   `isadmin` tinyint(1) NOT NULL DEFAULT '0' COMMENT '是否后台用户上传',
   `uploadtime` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '上传时间',
-  `uploadip` char(15) NOT NULL DEFAULT '' COMMENT '上传ip',
+  `uploadip` varchar(16) NOT NULL DEFAULT '' COMMENT '上传ip',
   `status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '附件使用状态',
-  `authcode` char(32) NOT NULL DEFAULT '' COMMENT '附件路径MD5值',
+  `authcode` varchar(32) NOT NULL DEFAULT '' COMMENT '附件路径MD5值',
   PRIMARY KEY (`aid`),
   KEY `authcode` (`authcode`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='附件表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='附件表';
 
 -- ----------------------------
 -- Records of cms_attachment
@@ -70,7 +70,7 @@ CREATE TABLE `cms_attachment_index` (
   `aid` char(10) NOT NULL DEFAULT '' COMMENT '附件ID',
   KEY `keyid` (`keyid`),
   KEY `aid` (`aid`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='附件关系表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='附件关系表';
 
 -- ----------------------------
 -- Records of cms_attachment_index
@@ -82,33 +82,43 @@ CREATE TABLE `cms_attachment_index` (
 DROP TABLE IF EXISTS `cms_behavior`;
 CREATE TABLE `cms_behavior` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT COMMENT '主键',
-  `name` char(30) NOT NULL DEFAULT '' COMMENT '行为唯一标识',
-  `title` char(80) NOT NULL DEFAULT '' COMMENT '行为说明',
-  `remark` char(140) NOT NULL DEFAULT '' COMMENT '行为描述',
+  `name` varchar(128) NOT NULL DEFAULT '' COMMENT '行为唯一标识',
+  `title` varchar(256) NOT NULL DEFAULT '' COMMENT '行为说明',
+  `remark` varchar(256) NOT NULL DEFAULT '' COMMENT '行为描述',
   `type` tinyint(1) NOT NULL DEFAULT '1' COMMENT '1-控制器，2-视图',
   `status` tinyint(2) NOT NULL DEFAULT '0' COMMENT '状态（0：禁用，1：正常）',
   `system` tinyint(1) NOT NULL DEFAULT '0' COMMENT '是否系统',
-  `module` char(20) NOT NULL DEFAULT '' COMMENT '所属模块',
+  `module` varchar(128) NOT NULL DEFAULT '' COMMENT '所属模块',
   `datetime` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '修改时间',
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='系统行为表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='系统行为表';
 
 -- ----------------------------
 -- Records of cms_behavior
 -- ----------------------------
-INSERT INTO `cms_behavior` VALUES ('1', 'app_init', '应用初始化标签位', '应用初始化标签位', '1', '1', '1', '', '1381021393');
-INSERT INTO `cms_behavior` VALUES ('2', 'path_info', 'PATH_INFO检测标签位', 'PATH_INFO检测标签位', '1', '1', '1', '', '1381021411');
-INSERT INTO `cms_behavior` VALUES ('3', 'app_begin', '应用开始标签位', '应用开始标签位', '1', '1', '1', '', '1381021424');
-INSERT INTO `cms_behavior` VALUES ('4', 'action_name', '操作方法名标签位', '操作方法名标签位', '1', '1', '1', '', '1381021437');
-INSERT INTO `cms_behavior` VALUES ('5', 'action_begin', '控制器开始标签位', '控制器开始标签位', '1', '1', '1', '', '1381021450');
-INSERT INTO `cms_behavior` VALUES ('6', 'view_begin', '视图输出开始标签位', '视图输出开始标签位', '1', '1', '1', '', '1381021463');
-INSERT INTO `cms_behavior` VALUES ('7', 'view_parse', '视图解析标签位', '视图解析标签位', '1', '1', '1', '', '1381021476');
-INSERT INTO `cms_behavior` VALUES ('8', 'template_filter', '模板内容解析标签位', '模板内容解析标签位', '1', '1', '1', '', '1381021488');
-INSERT INTO `cms_behavior` VALUES ('9', 'view_filter', '视图输出过滤标签位', '视图输出过滤标签位', '1', '1', '1', '', '1381021621');
-INSERT INTO `cms_behavior` VALUES ('10', 'view_end', '视图输出结束标签位', '视图输出结束标签位', '1', '1', '1', '', '1381021631');
-INSERT INTO `cms_behavior` VALUES ('11', 'action_end', '控制器结束标签位', '控制器结束标签位', '1', '1', '1', '', '1381021642');
-INSERT INTO `cms_behavior` VALUES ('12', 'app_end', '应用结束标签位', '应用结束标签位', '1', '1', '1', '', '1381021654');
-INSERT INTO `cms_behavior` VALUES ('13', 'appframe_rbac_init', '后台权限控制', '后台权限控制', '1', '1', '1', '', '1381023560');
+INSERT INTO `cms_behavior` (`id`, `name`, `title`, `remark`, `type`, `status`, `system`, `module`, `datetime`)
+VALUES
+    (1, 'app_init', '应用初始化标签位', '应用初始化标签位', 1, 1, 1, '', 1381021393),
+    (2, 'path_info', 'PATH_INFO检测标签位', 'PATH_INFO检测标签位', 1, 1, 1, '', 1381021411),
+    (3, 'app_begin', '应用开始标签位', '应用开始标签位', 1, 1, 1, '', 1381021424),
+    (4, 'action_name', '操作方法名标签位', '操作方法名标签位', 1, 1, 1, '', 1381021437),
+    (5, 'action_begin', '控制器开始标签位', '控制器开始标签位', 1, 1, 1, '', 1381021450),
+    (6, 'view_begin', '视图输出开始标签位', '视图输出开始标签位', 1, 1, 1, '', 1381021463),
+    (7, 'view_parse', '视图解析标签位', '视图解析标签位', 1, 1, 1, '', 1381021476),
+    (8, 'template_filter', '模板内容解析标签位', '模板内容解析标签位', 1, 1, 1, '', 1381021488),
+    (9, 'view_filter', '视图输出过滤标签位', '视图输出过滤标签位', 1, 1, 1, '', 1381021621),
+    (10, 'view_end', '视图输出结束标签位', '视图输出结束标签位', 1, 1, 1, '', 1381021631),
+    (11, 'action_end', '控制器结束标签位', '控制器结束标签位', 1, 1, 1, '', 1381021642),
+    (12, 'app_end', '应用结束标签位', '应用结束标签位', 1, 1, 1, '', 1381021654),
+    (13, 'appframe_rbac_init', '后台权限控制', '后台权限控制', 1, 1, 1, '', 1381023560),
+    (14, 'content_add_begin', '内容添加完成时行为调用', '内容添加完成时行为调用', 1, 1, 1, '', 1381023560),
+    (15, 'content_add_end', '内容添加结束时行为调用', '内容添加结束时行为调用', 1, 1, 1, '', 1381023560),
+    (16, 'content_edit_begin', '内容编辑完成时行为调用', '内容编辑完成时行为调用', 1, 1, 1, '', 1381023560),
+    (17, 'content_edit_end', '内容编辑结束时行为调用', '内容编辑结束时行为调用', 1, 1, 1, '', 1381023560),
+    (18, 'content_check_begin', '内容审核前的行为调用', '内容审核前的行为调用', 1, 1, 1, '', 1381023560),
+    (19, 'content_check_end', '内容审核后的行为调用', '内容审核后的行为调用', 1, 1, 1, '', 1381023560),
+    (20, 'content_delete_begin', '内容删除前的行为调用', '内容删除前的行为调用', 1, 1, 1, '', 1381023560),
+    (21, 'content_delete_end', '内容删除后的行为调用', '内容删除后的行为调用', 1, 1, 1, '', 1381023560);
 
 -- ----------------------------
 -- Table structure for cms_behavior_log
@@ -120,7 +130,7 @@ CREATE TABLE `cms_behavior_log` (
   `guid` char(50) NOT NULL DEFAULT '' COMMENT '标识',
   `create_time` int(10) NOT NULL DEFAULT '0' COMMENT '执行行为的时间',
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='行为日志';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='行为日志';
 
 -- ----------------------------
 -- Records of cms_behavior_log
@@ -140,7 +150,7 @@ CREATE TABLE `cms_behavior_rule` (
   `listorder` tinyint(3) NOT NULL DEFAULT '0' COMMENT '排序',
   `datetime` int(10) NOT NULL DEFAULT '0' COMMENT '添加时间',
   PRIMARY KEY (`ruleid`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='行为规则表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='行为规则表';
 
 -- ----------------------------
 -- Records of cms_behavior_rule
@@ -170,7 +180,7 @@ CREATE TABLE `cms_cache` (
   `system` tinyint(1) NOT NULL DEFAULT '0' COMMENT '是否系统',
   PRIMARY KEY (`id`),
   KEY `ckey` (`key`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='缓存更新列队';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='缓存更新列队';
 
 -- ----------------------------
 -- Records of cms_cache
@@ -214,7 +224,7 @@ CREATE TABLE `cms_category` (
   PRIMARY KEY (`catid`),
   KEY `module` (`module`,`parentid`,`listorder`,`catid`),
   KEY `siteid` (`type`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='栏目表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='栏目表';
 
 -- ----------------------------
 -- Records of cms_category
@@ -232,7 +242,7 @@ CREATE TABLE `cms_category_field` (
   `setting` mediumtext COMMENT '其他',
   `createtime` int(10) NOT NULL DEFAULT '0' COMMENT '创建时间',
   PRIMARY KEY (`fid`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='栏目扩展字段列表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='栏目扩展字段列表';
 
 -- ----------------------------
 -- Records of cms_category_field
@@ -248,7 +258,7 @@ CREATE TABLE `cms_category_priv` (
   `is_admin` tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT '是否为管理员 1、管理员',
   `action` char(30) NOT NULL DEFAULT '' COMMENT '动作',
   KEY `catid` (`catid`,`roleid`,`is_admin`,`action`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='栏目权限表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='栏目权限表';
 
 -- ----------------------------
 -- Records of cms_category_priv
@@ -266,7 +276,7 @@ CREATE TABLE `cms_config` (
   `value` text,
   PRIMARY KEY (`id`),
   KEY `varname` (`varname`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='网站配置表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='网站配置表';
 
 -- ----------------------------
 -- Records of cms_config
@@ -325,7 +335,7 @@ CREATE TABLE `cms_config_field` (
   `setting` mediumtext COMMENT '其他',
   `createtime` int(10) NOT NULL DEFAULT '0' COMMENT '创建时间',
   PRIMARY KEY (`fid`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='网站配置，扩展字段列表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='网站配置，扩展字段列表';
 
 -- ----------------------------
 -- Records of cms_config_field
@@ -351,7 +361,7 @@ CREATE TABLE `cms_customlist` (
   `listpath` varchar(60) NOT NULL DEFAULT '' COMMENT '列表模板文件',
   `createtime` int(10) NOT NULL DEFAULT '0' COMMENT '添加时间',
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='自定义列表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='自定义列表';
 
 -- ----------------------------
 -- Records of cms_customlist
@@ -369,7 +379,7 @@ CREATE TABLE `cms_customtemp` (
   `temptext` mediumtext CHARACTER SET utf8 COMMENT '模板内容',
   PRIMARY KEY (`tempid`),
   KEY `tempname` (`tempname`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='自定义模板表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='自定义模板表';
 
 -- ----------------------------
 -- Records of cms_customtemp
@@ -387,7 +397,7 @@ CREATE TABLE `cms_locking` (
   `locktime` int(10) NOT NULL DEFAULT '0' COMMENT '锁定时间',
   KEY `userid` (`userid`),
   KEY `onlinetime` (`locktime`)
-) ENGINE=MEMORY DEFAULT CHARSET=utf8 COMMENT='信息锁定';
+) ENGINE=MEMORY DEFAULT CHARSET=utf8mb4 COMMENT='信息锁定';
 
 -- ----------------------------
 -- Records of cms_locking
@@ -406,7 +416,7 @@ CREATE TABLE `cms_loginlog` (
   `password` varchar(30) NOT NULL DEFAULT '' COMMENT '尝试错误密码',
   `info` varchar(255) NOT NULL DEFAULT '' COMMENT '其他说明',
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='后台登录日志表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='后台登录日志表';
 
 -- ----------------------------
 -- Records of cms_loginlog
@@ -430,7 +440,7 @@ CREATE TABLE `cms_menu` (
   `listorder` smallint(6) unsigned NOT NULL DEFAULT '0' COMMENT '排序ID',
   PRIMARY KEY (`id`),
   KEY `parentid` (`parentid`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='后台菜单表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='后台菜单表';
 
 -- ----------------------------
 -- Records of cms_menu
@@ -472,8 +482,9 @@ INSERT INTO `cms_menu` VALUES ('34', '删除一个月前的登录日志', '32', 
 INSERT INTO `cms_menu` VALUES ('35', '删除一个月前的操作日志', '33', 'Admin', 'Logs', 'deletelog', '', '1', '1', '', '0');
 INSERT INTO `cms_menu` VALUES ('36', '添加行为', '13', 'Admin', 'Behavior', 'add', '', '1', '1', '', '0');
 INSERT INTO `cms_menu` VALUES ('37', '模块', '0', 'Admin', 'Module', 'index', '', '0', '1', '', '0');
-INSERT INTO `cms_menu` VALUES ('42', '本地模块管理', '37', 'Admin', 'Module', 'local', '', '0', '1', '', '0');
-INSERT INTO `cms_menu` VALUES ('43', '模块管理', '42', 'Admin', 'Module', 'index', '', '1', '1', '', '0');
+INSERT INTO `cms_menu` VALUES ('42', '模块管理', '37', 'Admin', 'Module', 'local', '', '0', '1', '', '0');
+INSERT INTO `cms_menu` VALUES ('43', '本地模块', '42', 'Admin', 'Module', 'index', '', '1', '1', '', '0');
+INSERT INTO `cms_menu` VALUES ('41', '模块仓库', '42', 'Admin', 'Module', 'remote', '', '1', '1', '', '0');
 INSERT INTO `cms_menu` VALUES ('44', '内容', '0', 'Content', 'Index', 'index', '', '0', '1', '', '0');
 INSERT INTO `cms_menu` VALUES ('45', '内容管理', '44', 'Content', 'Content', 'index', '', '0', '1', '', '0');
 INSERT INTO `cms_menu` VALUES ('46', '内容相关设置', '44', 'Content', 'Category', 'index', '', '0', '1', '', '0');
@@ -544,6 +555,13 @@ INSERT INTO `cms_menu` VALUES ('110', '安装插件', '40', 'Admin', 'Addonshop'
 INSERT INTO `cms_menu` VALUES ('111', '升级插件', '40', 'Admin', 'Addonshop', 'upgrade', '', '1', '0', '', '0');
 INSERT INTO `cms_menu` VALUES ('112', '栏目授权', '26', 'Admin', 'Rbac', 'setting_cat_priv', '', '1', '0', '', '0');
 
+-- 权限组
+INSERT INTO `cms_menu` (`id`, `name`, `parentid`, `app`, `controller`, `action`, `parameter`, `type`, `status`, `remark`, `listorder`)
+VALUES
+	(113, '权限管理', 3, 'Admin', '%', '%', '', 0, 1, '', 0),
+	(114, '权限组', 113, 'Admin', 'AccessGroup', 'accessGroupList', '', 1, 1, '', 0);
+
+
 -- ----------------------------
 -- Table structure for cms_model
 -- ----------------------------
@@ -552,23 +570,25 @@ CREATE TABLE `cms_model` (
   `modelid` smallint(5) unsigned NOT NULL AUTO_INCREMENT,
   `name` char(30) NOT NULL DEFAULT '' COMMENT '模型名称',
   `description` char(100) NOT NULL DEFAULT '' COMMENT '描述',
-  `tablename` char(20) NOT NULL DEFAULT '' COMMENT '表名',
+  `tablename` varchar(64) NOT NULL DEFAULT '' COMMENT '表名',
   `setting` text COMMENT '配置信息',
   `addtime` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '添加时间',
   `items` smallint(5) unsigned NOT NULL DEFAULT '0' COMMENT '信息数',
   `enablesearch` tinyint(1) unsigned NOT NULL DEFAULT '1' COMMENT '是否开启全站搜索',
   `disabled` tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT '是否禁用 1禁用',
   `default_style` char(30) NOT NULL DEFAULT '' COMMENT '风格',
-  `category_template` char(30) NOT NULL DEFAULT '' COMMENT '栏目模板',
-  `list_template` char(30) NOT NULL DEFAULT '' COMMENT '列表模板',
-  `show_template` char(30) NOT NULL DEFAULT '' COMMENT '内容模板',
-  `list_customtemplate` char(30) NOT NULL DEFAULT '' COMMENT '后台列表页',
-  `js_template` varchar(30) NOT NULL DEFAULT '' COMMENT 'JS模板',
+  `category_template` varchar(128) NOT NULL DEFAULT '' COMMENT '栏目模板',
+  `list_template` varchar(128) NOT NULL DEFAULT '' COMMENT '列表模板',
+  `show_template` varchar(128) NOT NULL DEFAULT '' COMMENT '内容模板',
+  `list_customtemplate` varchar(128) NOT NULL DEFAULT '' COMMENT '后台列表页',
+  `js_template` varchar(128) NOT NULL DEFAULT '' COMMENT 'JS模板',
   `sort` tinyint(3) NOT NULL DEFAULT '0' COMMENT '排序',
   `type` tinyint(1) NOT NULL DEFAULT '0' COMMENT '模块标识',
+  `add_customtemplate` varchar(128) NOT NULL DEFAULT '' COMMENT '添加信息模板',
+  `edit_customtemplate` varchar(128) NOT NULL DEFAULT '' COMMENT '编辑信息模板',
   PRIMARY KEY (`modelid`),
   KEY `type` (`type`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='内容模型列表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='内容模型列表';
 
 -- ----------------------------
 -- Records of cms_model
@@ -608,7 +628,7 @@ CREATE TABLE `cms_model_field` (
   PRIMARY KEY (`fieldid`),
   KEY `modelid` (`modelid`,`disabled`),
   KEY `field` (`field`,`modelid`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='模型字段列表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='模型字段列表';
 
 -- ----------------------------
 -- Records of cms_model_field
@@ -629,9 +649,8 @@ CREATE TABLE `cms_module` (
   `installtime` int(10) NOT NULL DEFAULT '0' COMMENT '安装时间',
   `updatetime` int(10) NOT NULL DEFAULT '0' COMMENT '更新时间',
   `listorder` tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '排序',
-  PRIMARY KEY (`module`),
-  KEY `sign` (`sign`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='已安装模块列表';
+  PRIMARY KEY (`module`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='已安装模块列表';
 
 -- ----------------------------
 -- Records of cms_module
@@ -652,7 +671,7 @@ CREATE TABLE `cms_operationlog` (
   PRIMARY KEY (`id`),
   KEY `status` (`status`),
   KEY `username` (`uid`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='后台操作日志表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='后台操作日志表';
 
 -- ----------------------------
 -- Records of cms_operationlog
@@ -672,7 +691,7 @@ CREATE TABLE `cms_page` (
   `updatetime` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '更新时间',
   PRIMARY KEY (`catid`),
   KEY `catid` (`catid`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='单页内容表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='单页内容表';
 
 -- ----------------------------
 -- Records of cms_page
@@ -691,7 +710,7 @@ CREATE TABLE `cms_position` (
   `extention` char(100) NOT NULL DEFAULT '',
   `listorder` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '排序',
   PRIMARY KEY (`posid`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='推荐位';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='推荐位';
 
 -- ----------------------------
 -- Records of cms_position
@@ -708,14 +727,16 @@ CREATE TABLE `cms_position_data` (
   `module` char(20) NOT NULL DEFAULT '' COMMENT '模型',
   `modelid` smallint(6) unsigned NOT NULL DEFAULT '0' COMMENT '模型ID',
   `thumb` tinyint(1) NOT NULL DEFAULT '0' COMMENT '是否有缩略图',
-  `data` mediumtext COMMENT '数据信息',
+  `data` text NOT NULL COMMENT '数据信息',
   `listorder` int(11) NOT NULL AUTO_INCREMENT COMMENT '排序',
   `expiration` int(10) NOT NULL,
   `extention` char(30) NOT NULL DEFAULT '',
   `synedit` tinyint(1) NOT NULL DEFAULT '0' COMMENT '是否同步编辑',
+  `inputtime` int(11) NOT NULL COMMENT '创建时间',
+  `updatetime` int(11) NOT NULL COMMENT '更新时间',
   KEY `posid` (`posid`),
   KEY `listorder` (`listorder`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='推荐位数据表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='推荐位数据表';
 
 -- ----------------------------
 -- Records of cms_position_data
@@ -737,7 +758,7 @@ CREATE TABLE `cms_role` (
   PRIMARY KEY (`id`),
   KEY `parentId` (`parentid`),
   KEY `status` (`status`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='角色信息列表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='角色信息列表';
 
 -- ----------------------------
 -- Records of cms_role
@@ -766,7 +787,7 @@ CREATE TABLE `cms_tags` (
   UNIQUE KEY `tag` (`tag`),
   KEY `usetimes` (`usetimes`,`listorder`),
   KEY `hits` (`hits`,`listorder`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='tags主表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='tags主表';
 
 -- ----------------------------
 -- Records of cms_tags
@@ -786,7 +807,7 @@ CREATE TABLE `cms_tags_content` (
   `updatetime` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '更新时间',
   KEY `modelid` (`modelid`,`contentid`),
   KEY `tag` (`tag`(10))
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='tags数据表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='tags数据表';
 
 -- ----------------------------
 -- Records of cms_tags_content
@@ -802,10 +823,8 @@ CREATE TABLE `cms_terms` (
   `name` varchar(200) NOT NULL DEFAULT '' COMMENT '分类名称',
   `module` varchar(200) NOT NULL DEFAULT '' COMMENT '所属模块',
   `setting` mediumtext COMMENT '相关配置信息',
-  PRIMARY KEY (`id`),
-  KEY `name` (`name`),
-  KEY `module` (`module`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='分类表';
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='分类表';
 
 -- ----------------------------
 -- Records of cms_terms
@@ -823,7 +842,7 @@ CREATE TABLE `cms_urlrule` (
   `urlrule` varchar(255) NOT NULL DEFAULT '' COMMENT 'url规则',
   `example` varchar(255) NOT NULL DEFAULT '' COMMENT '示例',
   PRIMARY KEY (`urlruleid`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='内容模型URL规则';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='内容模型URL规则';
 
 -- ----------------------------
 -- Records of cms_urlrule
@@ -864,11 +883,43 @@ CREATE TABLE `cms_user` (
   `update_time` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '更新时间',
   `status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '状态',
   `role_id` tinyint(4) unsigned NOT NULL DEFAULT '0' COMMENT '对应角色ID',
-  `info` text COMMENT '信息',
+  `info` text NOT NULL COMMENT '信息',
+  `avatar` varchar(256) NOT NULL DEFAULT '' COMMENT '头像链接',
+  `phone` varchar(32) NOT NULL DEFAULT '' COMMENT '手机号码',
   PRIMARY KEY (`id`),
   UNIQUE KEY `account` (`username`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='后台用户表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='后台用户表';
 
 -- ----------------------------
 -- Records of cms_user
 -- ----------------------------
+
+CREATE TABLE `cms_access_group` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(64) NOT NULL DEFAULT '' COMMENT '名称',
+  `parentid` int(11) NOT NULL COMMENT '父组别ID',
+  `status` tinyint(2) NOT NULL COMMENT '启用状态：0禁用1启用',
+  `description` varchar(32) NOT NULL DEFAULT '' COMMENT '描述',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='权限组';
+
+
+CREATE TABLE `cms_access_group_role` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `group_id` int(11) NOT NULL,
+  `group_name` varchar(32) NOT NULL DEFAULT '',
+  `role_id` int(11) NOT NULL COMMENT '角色ID',
+  `group_parentid` int(11) NOT NULL DEFAULT '0' COMMENT '父组别ID',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='角色的权限组';
+
+CREATE TABLE `cms_access_group_items` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `group_id` int(11) NOT NULL,
+  `name` varchar(32) NOT NULL DEFAULT '' COMMENT '名称',
+  `app` varchar(32) NOT NULL DEFAULT '',
+  `controller` varchar(32) NOT NULL DEFAULT '',
+  `action` varchar(32) NOT NULL DEFAULT '',
+  `access_id` int(11) NOT NULL COMMENT '所属权限表ID',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='权限组的权限';

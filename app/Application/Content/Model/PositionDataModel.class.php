@@ -15,9 +15,15 @@ class PositionDataModel extends Model {
 		//array(验证字段,验证规则,错误提示,验证条件,附加规则,验证时间)
 	);
 
+    //自动完成
+    protected $_auto = array(
+        array('inputtime', 'time', self::MODEL_INSERT, 'function'),
+        array('updatetime', 'time', self::MODEL_BOTH, 'function'),
+    );
+
 	/**
 	 * 推荐位中被推送过来的信息编辑
-	 * @param type $data
+	 * @param array $data
 	 * @return boolean
 	 */
 	public function positionEdit($data) {
@@ -44,9 +50,10 @@ class PositionDataModel extends Model {
 
 	/**
 	 * 信息从推荐位中移除
-	 * @param type $posid 推荐位id
-	 * @param type $id 信息id
-	 * @param type $modelid] 模型id
+	 * @param string $posid 推荐位id
+	 * @param string $id 信息id
+	 * @param string $modelid] 模型id
+     * @return boolean
 	 */
 	public function deleteItem($posid, $id, $modelid) {
 		if (!$posid || !$id || !$modelid) {
@@ -68,9 +75,9 @@ class PositionDataModel extends Model {
 
 	/**
 	 * 根据模型ID和信息ID删除推荐信息
-	 * @param type $modelid
-	 * @param type $id
-	 * @return boolean\
+	 * @param string $modelid
+	 * @param string $id
+	 * @return boolean
 	 */
 	public function deleteByModeId($modelid, $id) {
 		if (empty($modelid) || empty($id)) {
@@ -91,9 +98,9 @@ class PositionDataModel extends Model {
 
 	/**
 	 * 更新信息推荐位状态
-	 * @param type $id 信息id
-	 * @param type $modelid 模型id
-	 * @return type
+	 * @param string $id 信息id
+	 * @param string $modelid 模型id
+	 * @return boolean
 	 */
 	public function contentPos($id, $modelid) {
 		$id = intval($id);
@@ -106,11 +113,11 @@ class PositionDataModel extends Model {
 		}
 		//更改文章推荐位状态
 		$status = ContentModel::getInstance($modelid)->where(array('id' => $id))->save(array('posid' => $posids));
-		if (false !== $status && $status > 0) {
+        if (false !== $status && $status > 0) {
 			return true;
 		} else {
 			//有可能副表
-			$tablename = ucwords(getModel($modelid, 'tablename'));
+			$tablename = getModel($modelid, 'tablename');
 			if ($this->field_exists("{$tablename}_data", 'posid')) {
 				return M($tablename . 'Data')->where(array('id' => $id))->save(array('posid' => $posids)) !== false ? true : false;
 			}

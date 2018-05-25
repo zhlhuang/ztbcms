@@ -428,7 +428,7 @@ class CmsTag extends TagLib {
 	 * 	独有参数：
 	 * 		@num		返回信息数
 	+----------------------------------------------------------
-	 * @param string $attr 标签属性
+	 * @param string $tag 标签名
 	 * @param string $content  标签内容
      * @return boolean|string
 	 */
@@ -612,7 +612,7 @@ class CmsTag extends TagLib {
 		if (!$sql && !$table) {
 			return false;
 		}
-		//删除，插入不执行！这样处理感觉有点鲁莽了，，，-__,-!
+		//删除，插入不执行！
 		if (strpos($tag['sql'], "delete") || strpos($tag['sql'], "insert")) {
 			return false;
 		}

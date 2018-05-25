@@ -15,11 +15,13 @@
  * @author    overtrue <i@overtrue.me>
  * @copyright 2015 overtrue <i@overtrue.me>
  *
- * @link      https://github.com/overtrue
- * @link      http://overtrue.me
+ * @see      https://github.com/overtrue
+ * @see      http://overtrue.me
  */
+
 namespace EasyWeChat\Payment;
 
+use Doctrine\Common\Cache\Cache;
 use EasyWeChat\Core\Exceptions\FaultException;
 use EasyWeChat\Support\Url as UrlHelper;
 use EasyWeChat\Support\XML;
@@ -28,6 +30,8 @@ use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Class Payment.
+ *
+ * @mixin API
  */
 class Payment
 {
@@ -49,13 +53,22 @@ class Payment
     protected $merchant;
 
     /**
+     * Cache.
+     *
+     * @var \Doctrine\Common\Cache\Cache
+     */
+    protected $cache;
+
+    /**
      * Constructor.
      *
-     * @param Merchant $merchant
+     * @param \EasyWeChat\Payment\Merchant      $merchant
+     * @param \Doctrine\Common\Cache\Cache|null $cache
      */
-    public function __construct(Merchant $merchant)
+    public function __construct(Merchant $merchant, Cache $cache = null)
     {
         $this->merchant = $merchant;
+        $this->cache = $cache;
     }
 
     /**
@@ -92,7 +105,7 @@ class Payment
         $notify = $this->getNotify();
 
         if (!$notify->isValid()) {
-            throw new FaultException('Invalid request XML.', 400);
+            throw new FaultException('Invalid request payloads.', 400);
         }
 
         $notify = $notify->getNotify();
@@ -109,6 +122,77 @@ class Payment
             $response = [
                 'return_code' => 'FAIL',
                 'return_msg' => $handleResult,
+            ];
+        }
+
+        return new Response(XML::build($response));
+    }
+
+    /**
+     * Handle refund notify.
+     *
+     * @param callable $callback
+     *
+     * @return Response
+     */
+    public function handleRefundNotify(callable $callback)
+    {
+        $notify = $this->getRefundNotify()->getNotify();
+        $successful = $notify->get('return_code') === 'SUCCESS';
+
+        $handleResult = call_user_func_array($callback, [$notify, $successful]);
+
+        if (is_bool($handleResult) && $handleResult) {
+            $response = [
+                'return_code' => 'SUCCESS',
+                'return_msg' => 'OK',
+            ];
+        } else {
+            $response = [
+                'return_code' => 'FAIL',
+                'return_msg' => $handleResult,
+            ];
+        }
+
+        return new Response(XML::build($response));
+    }
+
+    /**
+     * Handle native scan notify.
+     * https://pay.weixin.qq.com/wiki/doc/api/native.php?chapter=6_4
+     * The callback shall return string of prepay_id or throw an exception.
+     *
+     * @param callable $callback
+     *
+     * @return Response
+     */
+    public function handleScanNotify(callable $callback)
+    {
+        $notify = $this->getNotify();
+
+        if (!$notify->isValid()) {
+            throw new FaultException('Invalid request payloads.', 400);
+        }
+
+        $notify = $notify->getNotify();
+
+        try {
+            $prepayId = call_user_func_array($callback, [$notify->get('product_id'), $notify->get('openid'), $notify]);
+            $response = [
+                'return_code' => 'SUCCESS',
+                'appid' => $this->merchant->app_id,
+                'mch_id' => $this->merchant->merchant_id,
+                'nonce_str' => uniqid(),
+                'prepay_id' => strval($prepayId),
+                'result_code' => 'SUCCESS',
+            ];
+            $response['sign'] = generate_sign($response, $this->merchant->key);
+        } catch (\Exception $e) {
+            $response = [
+                'return_code' => 'SUCCESS',
+                'return_msg' => $e->getCode(),
+                'result_code' => 'FAIL',
+                'err_code_des' => $e->getMessage(),
             ];
         }
 
@@ -257,6 +341,16 @@ class Payment
     }
 
     /**
+     * Return RefundNotify instance.
+     *
+     * @return \EasyWeChat\Payment\RefundNotify
+     */
+    public function getRefundNotify()
+    {
+        return new RefundNotify($this->merchant);
+    }
+
+    /**
      * API setter.
      *
      * @param API $api
@@ -273,7 +367,7 @@ class Payment
      */
     public function getAPI()
     {
-        return $this->api ?: $this->api = new API($this->getMerchant());
+        return $this->api ?: $this->api = new API($this->getMerchant(), $this->cache);
     }
 
     /**

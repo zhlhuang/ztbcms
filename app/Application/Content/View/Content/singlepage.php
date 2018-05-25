@@ -1,10 +1,10 @@
-<?php if (!defined('CMS_VERSION')) exit(); ?>
+ 
 <!doctype html>
 <html>
 <head>
 <meta charset="UTF-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
-<title>单页编辑 - 系统后台 - {$Config.sitename} - by ZtbCMS</title>
+<title>单页编辑 - 系统后台 - {$Config.sitename} - by ZTBCMS</title>
 <Admintemplate file="Admin/Common/Cssjs"/>
 <script type="text/javascript">
     var catid = "{$catid}";
@@ -155,15 +155,7 @@ $(function () {
                 return editorcontent.hasContents();
             });
         var form = $('form.J_ajaxForms');
-        //ie处理placeholder提交问题
-        if ($.browser.msie) {
-            form.find('[placeholder]').each(function () {
-                var input = $(this);
-                if (input.val() == input.attr('placeholder')) {
-                    input.val('');
-                }
-            });
-        }
+
         //表单验证开始
         form.validate({
 			//是否在获取焦点时验证

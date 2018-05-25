@@ -1,4 +1,4 @@
-<?php if (!defined('CMS_VERSION')) exit(); ?>
+ 
 <Admintemplate file="Common/Head"/>
 <body class="J_scroll_fixed">
 <style>
@@ -29,10 +29,18 @@
     <ul class="J_tabs_nav">
       <li class="current"><a href="javascript:;;">基本属性</a></li>
       <li class=""><a href="javascript:;;">选项设置</a></li>
-      <li class=""><a href="javascript:;;">模板设置</a></li>
-      <li class=""><a href="javascript:;;">生成设置</a></li>
-      <li class=""><a href="javascript:;;">权限设置</a></li>
-      <li class=""><a href="javascript:;;">扩展字段</a></li>
+        <if condition="$is_admin">
+            <li class=""><a href="javascript:;;">模板设置</a></li>
+        </if>
+        <if condition="$is_admin">
+            <li class=""><a href="javascript:;;">生成设置</a></li>
+        </if>
+        <if condition="$is_admin">
+            <li class=""><a href="javascript:;;">权限设置</a></li>
+        </if>
+        <if condition="$is_admin">
+            <li class=""><a href="javascript:;;">扩展字段</a></li>
+        </if>
     </ul>
   </div>
   <form class="J_ajaxForms" name="myform" id="myform" action="{:U("Category/edit")}" method="post">
@@ -234,9 +242,20 @@
             </if>
             <tr>
               <th>后台信息列表模板：</th>
-              <td><input type="text" name="setting[list_customtemplate]" id="catdir" class="input" value="{$data['setting']['list_customtemplate']}">
+              <td><input type="text" name="setting[list_customtemplate]" class="input" value="{$data['setting']['list_customtemplate']}">
               <span class="gray">模板名称不带后缀，不设置为使用默认列表，增加列表模板可在/app/Application/Content/View/Listtemplate/里增加文件</span></td>
             </tr>
+
+              <tr>
+                  <th>后台信息添加模板：</th>
+                  <td><input type="text" name="setting[add_customtemplate]" class="input" value="{$data['setting']['add_customtemplate']}">
+                      <span class="gray">模板名称不带后缀，不设置为使用默认列表，增加列表模板可在/app/Application/Content/View/Addtemplate/里增加文件</span></td>
+              </tr>
+              <tr>
+                  <th>后台信息编辑模板：</th>
+                  <td><input type="text" name="setting[edit_customtemplate]" class="input" value="{$data['setting']['edit_customtemplate']}">
+                      <span class="gray">模板名称不带后缀，不设置为使用默认列表，增加列表模板可在/app/Application/Content/View/Edittemplate/里增加文件</span></td>
+              </tr>
           </table>
         </div>
       </div>
@@ -458,10 +477,10 @@
 function extend_type(type){
 	if(type == 'radio' || type == 'checkbox'){
 		$('.setting_radio').show();
-		$('.setting_radio textarea').attr('disabled',false);
+		$('.setting_radio textarea').prop('disabled',false);
 	}else{
 		$('.setting_radio').hide();
-		$('.setting_radio textarea').attr('disabled',true);
+		$('.setting_radio textarea').prop('disabled',true);
 	}
 }
 
@@ -623,15 +642,6 @@ $(function(){
 	
     Wind.use('validate', 'ajaxForm', 'artDialog', function () {
         var form = $('form.J_ajaxForms');
-        //ie处理placeholder提交问题
-        if ($.browser.msie) {
-            form.find('[placeholder]').each(function () {
-                var input = $(this);
-                if (input.val() == input.attr('placeholder')) {
-                    input.val('');
-                }
-            });
-        }
         //表单验证开始
         form.validate({
 			//是否在获取焦点时验证
@@ -693,7 +703,7 @@ $(function(){
             //验证通过，提交表单
             submitHandler: function (forms) {
                 $(forms).ajaxSubmit({
-                    url: form.attr('action'), //按钮上是否自定义提交地址(多按钮情况)
+                    url: form.prop('action'), //按钮上是否自定义提交地址(多按钮情况)
                     dataType: 'json',
                     beforeSubmit: function (arr, $form, options) {
                         

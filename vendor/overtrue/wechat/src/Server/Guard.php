@@ -15,9 +15,10 @@
  * @author    overtrue <i@overtrue.me>
  * @copyright 2015 overtrue <i@overtrue.me>
  *
- * @link      https://github.com/overtrue
- * @link      http://overtrue.me
+ * @see      https://github.com/overtrue
+ * @see      http://overtrue.me
  */
+
 namespace EasyWeChat\Server;
 
 use EasyWeChat\Core\Exceptions\FaultException;
@@ -50,40 +51,38 @@ class Guard
     const SHORT_VIDEO_MSG = 32;
     const LOCATION_MSG = 64;
     const LINK_MSG = 128;
+    const DEVICE_EVENT_MSG = 256;
+    const DEVICE_TEXT_MSG = 512;
+    const FILE_MSG = 1024;
     const EVENT_MSG = 1048576;
-    const ALL_MSG = 1048830;
+    const ALL_MSG = 1049598;
 
     /**
-     * Request instance.
-     *
      * @var Request
      */
     protected $request;
 
     /**
-     * Encryptor instance.
-     *
+     * @var string
+     */
+    protected $token;
+
+    /**
      * @var Encryptor
      */
     protected $encryptor;
 
     /**
-     * Message listener.
-     *
      * @var string|callable
      */
     protected $messageHandler;
 
     /**
-     * Message type filter.
-     *
      * @var int
      */
     protected $messageFilter;
 
     /**
-     * Message type mapping.
-     *
      * @var array
      */
     protected $messageTypeMapping = [
@@ -94,12 +93,13 @@ class Guard
         'shortvideo' => 32,
         'location' => 64,
         'link' => 128,
+        'device_event' => 256,
+        'device_text' => 512,
+        'file' => 1024,
         'event' => 1048576,
     ];
 
     /**
-     * Debug mode.
-     *
      * @var bool
      */
     protected $debug = false;
@@ -107,10 +107,12 @@ class Guard
     /**
      * Constructor.
      *
+     * @param string  $token
      * @param Request $request
      */
-    public function __construct(Request $request = null)
+    public function __construct($token, Request $request = null)
     {
+        $this->token = $token;
         $this->request = $request ?: Request::createFromGlobals();
     }
 
@@ -144,6 +146,8 @@ class Guard
             'Protocal' => $this->request->server->get('SERVER_PROTOCOL'),
             'Content' => $this->request->getContent(),
         ]);
+
+        $this->validate($this->token);
 
         if ($str = $this->request->get('echostr')) {
             Log::debug("Output 'echostr' is '$str'.");
@@ -213,6 +217,30 @@ class Guard
     }
 
     /**
+     * Request getter.
+     *
+     * @return Request
+     */
+    public function getRequest()
+    {
+        return $this->request;
+    }
+
+    /**
+     * Request setter.
+     *
+     * @param Request $request
+     *
+     * @return $this
+     */
+    public function setRequest(Request $request)
+    {
+        $this->request = $request;
+
+        return $this;
+    }
+
+    /**
      * Set Encryptor.
      *
      * @param Encryptor $encryptor
@@ -257,12 +285,14 @@ class Guard
             return $message->get('content', self::SUCCESS_EMPTY_RESPONSE);
         }
 
-        if (is_string($message)) {
+        if (is_string($message) || is_numeric($message)) {
             $message = new Text(['content' => $message]);
         }
 
         if (!$this->isMessage($message)) {
-            throw new InvalidArgumentException("Invalid Message type .'{gettype($message)}'");
+            $messageType = gettype($message);
+
+            throw new InvalidArgumentException("Invalid Message type .'{$messageType}'");
         }
 
         $response = $this->buildReply($to, $from, $message);
@@ -302,6 +332,24 @@ class Guard
     }
 
     /**
+     * Get request message.
+     *
+     * @return array
+     *
+     * @throws BadRequestException
+     */
+    public function getMessage()
+    {
+        $message = $this->parseMessageFromRequest($this->request->getContent(false));
+
+        if (!is_array($message) || empty($message)) {
+            throw new BadRequestException('Invalid request.');
+        }
+
+        return $message;
+    }
+
+    /**
      * Handle request.
      *
      * @return array
@@ -311,12 +359,7 @@ class Guard
      */
     protected function handleRequest()
     {
-        $message = $this->parseMessageFromRequest($this->request->getContent(false));
-
-        if (!is_array($message) || empty($message)) {
-            throw new BadRequestException('Invalid request.');
-        }
-
+        $message = $this->getMessage();
         $response = $this->handleMessage($message);
 
         return [
@@ -333,14 +376,14 @@ class Guard
      *
      * @return mixed
      */
-    protected function handleMessage($message)
+    protected function handleMessage(array $message)
     {
         $handler = $this->messageHandler;
 
         if (!is_callable($handler)) {
             Log::debug('No handler enabled.');
 
-            return;
+            return null;
         }
 
         Log::debug('Message detail:', $message);
@@ -408,6 +451,13 @@ class Guard
     protected function parseMessageFromRequest($content)
     {
         $content = strval($content);
+
+        $dataSet = json_decode($content, true);
+        if ($dataSet && (JSON_ERROR_NONE === json_last_error())) {
+            // For mini-program JSON formats.
+            // Convert to XML if the given string can be decode into a data array.
+            $content = XML::build($dataSet);
+        }
 
         if ($this->isSafeMode()) {
             if (!$this->encryptor) {

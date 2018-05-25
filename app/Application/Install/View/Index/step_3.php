@@ -48,12 +48,12 @@
           <tr>
             <td class="tar">数据库名：</td>
             <td><input type="text" name="dbname" id="dbname" value="ztbcms" class="input"></td>
-            <td><div id="J_install_tip_dbname"></div></td>
+            <td><div id="J_install_tip_dbname">请预先创建数据库</div></td>
           </tr>
           <tr>
             <td class="tar">数据库表前缀：</td>
             <td><input type="text" name="dbprefix" id="dbprefix" value="ztb_" class="input"></td>
-            <td><div id="J_install_tip_dbprefix"><span class="gray">建议使用默认，同一数据库安装多个ZtbCMS时需修改</span></div></td>
+            <td><div id="J_install_tip_dbprefix"><span class="gray">建议使用默认，同一数据库安装多个ZTBCMS时需修改</span></div></td>
           </tr>
         </table>
 		<table width="100%">
@@ -64,7 +64,7 @@
           </tr>
           <tr>
             <td class="tar">网站名称：</td>
-            <td><input type="text" name="sitename" value="ZtbCMS内容管理系统" class="input"></td>
+            <td><input type="text" name="sitename" value="ZTBCMS内容管理系统" class="input"></td>
             <td><div id="J_install_tip_sitename"></div></td>
           </tr>
           <tr>
@@ -74,12 +74,12 @@
           </tr>
           <tr>
             <td class="tar">关键词：</td>
-            <td><input type="text" name="sitekeywords" value="ZtbCMS内容管理系统" class="input" autoComplete="off"></td>
+            <td><input type="text" name="sitekeywords" value="ZTBCMS内容管理系统" class="input" autoComplete="off"></td>
             <td><div id="J_install_tip_sitekeywords"></div></td>
           </tr>
           <tr>
             <td class="tar">描述：</td>
-            <td><input type="text" name="siteinfo" class="input" value="ZtbCMS网站管理系统,是一款完全开源免费的PHP+MYSQL系统.核心采用了Thinkphp框架等众多开源软件,同时核心功能也作为开源软件发布"></td>
+            <td><input type="text" name="siteinfo" class="input" value="ZTBCMS网站管理系统,是一款完全开源免费的PHP+MYSQL系统.核心采用了Thinkphp框架等众多开源软件,同时核心功能也作为开源软件发布"></td>
             <td><div id="J_install_tip_siteinfo"></div></td>
           </tr>
         </table>
@@ -111,7 +111,7 @@
           </tr>
 		  <tr>
             <td class="tar">测试数据：</td>
-            <td><input name="testdata" type="checkbox" value="1" alt="测试数据需要安装在根目录下才可以完整体验-__,-!" title="测试数据需要安装在根目录下才可以完整体验-__,-!"/><span class="gray">默认测试数据，了解ZtbFCMS！</span></td>
+            <td><input name="testdata" type="checkbox" value="1" alt="测试数据需要安装在根目录下才可以完整体验" title="测试数据需要安装在根目录下才可以完整体验"/><span class="gray">默认测试数据，了解ZTBCMS！</span></td>
             <td><div id="J_install_tip_manager_email"></div></td>
           </tr>
         </table>
@@ -144,8 +144,8 @@
             beforeSend:function(){				 
             },
             success: function(msg){
-                if(msg){
-                    
+                if(msg == 1){
+                    $('#J_install_tip_dbpw').html('<span for="dbname" generated="true" class="tips_success" style="">数据库链接成功</span>');
                 }else{
 				    $('#dbpw').val("");
                     $('#J_install_tip_dbpw').html('<span for="dbname" generated="true" class="tips_error" style="">数据库链接配置失败</span>');	

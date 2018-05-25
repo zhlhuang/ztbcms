@@ -7,6 +7,7 @@
 namespace Content\Model;
 
 use Common\Model\RelationModel;
+use Think\Model;
 
 class ContentModel extends RelationModel {
 
@@ -21,8 +22,8 @@ class ContentModel extends RelationModel {
 
 	/**
 	 * 取得内容模型实例
-	 * @param type $modelid 模型ID
-	 * @return obj
+	 * @param string $modelid 模型ID
+	 * @return ContentModel|NULL
 	 */
 	static public function getInstance($modelid) {
 		//静态成品变量 保存全局实例
@@ -31,7 +32,7 @@ class ContentModel extends RelationModel {
 			//内容模型缓存
 			$modelCache = cache("Model");
 			if (empty($modelCache[$modelid])) {
-				return false;
+				return null;
 			}
 			$tableName = $modelCache[$modelid]['tablename'];
 			$_instance[$modelid] = new ContentModel(ucwords($tableName));
@@ -42,7 +43,7 @@ class ContentModel extends RelationModel {
 					array('catid', 'require', '请选择栏目！', 1, 'regex', 1),
 					array('catid', 'isUltimate', '该模型非终极栏目，无法添加信息！', 1, 'callback', 1),
 					//标题
-					array('title', 'require', '标题必须填写！', 1, 'regex', 1),
+//					array('title', 'require', '标题必须填写！', 1, 'regex', 1),
 				);
 			}
 			//设置模型id
@@ -50,6 +51,17 @@ class ContentModel extends RelationModel {
 		}
 		return $_instance[$modelid];
 	}
+
+    /**
+     * 获取栏目ID 取得内容模型实例
+     * @param $catid string
+     * @return ContentModel|NULL
+     */
+    static public function getInstanceByCatid($catid) {
+        $_modelid = getCategory($catid, 'modelid');
+
+        return self::getInstance($_modelid);
+    }
 
 	/**
 	 * 进行关联查询
@@ -65,8 +77,8 @@ class ContentModel extends RelationModel {
 
 	/**
 	 * 关联定义
-	 * @param array $tableName 关联定义条件。
-	 * 如果是数组，直接定义配置好的关联条件，如果是字符串，则当作表名进行定义一对一关联条件！
+	 * @param array|string $tableName 关联定义条件。如果是数组，直接定义配置好的关联条件，如果是字符串，则当作表名进行定义一对一关联条件
+     * @return string
 	 */
 	public function relationShipsDefine($tableName) {
 		if (is_array($tableName)) {
@@ -88,8 +100,8 @@ class ContentModel extends RelationModel {
 
 	/**
 	 * 获取关联定义名称
-	 * @param type $tableName 表名
-	 * @return type
+	 * @param string $tableName 表名
+	 * @return string
 	 */
 	public function getRelationName($tableName = '') {
 		if (empty($tableName)) {
@@ -100,7 +112,8 @@ class ContentModel extends RelationModel {
 
 	/**
 	 * 对通过连表查询的数据进行合并处理
-	 * @param type $data
+	 * @param array $data
+     * @return array
 	 */
 	public function dataMerger(&$data) {
 		$relationName = $this->getRelationName();
@@ -117,7 +130,7 @@ class ContentModel extends RelationModel {
 	 * @access public
 	 * @param mixed $data 创建数据
 	 * @param string $type 状态
-	 * @param string $name 关联名称
+	 * @param boolean $name 关联名称
 	 * @return mixed
 	 */
 	public function create($data = '', $type = '', $name = true) {
@@ -230,7 +243,7 @@ class ContentModel extends RelationModel {
 
 	/**
 	 * 是否终极栏目
-	 * @param type $catid
+	 * @param int $catid
 	 * @return boolean
 	 */
 	public function isUltimate($catid) {
@@ -244,9 +257,9 @@ class ContentModel extends RelationModel {
 	/**
 	 * 添加验证规则
 	 * @param array $validate 规则
-	 * @param type $issystem 是否主表
-	 * @param type $name 关联名称
-	 * @return type
+	 * @param boolean $issystem 是否主表
+	 * @param boolean|string $name 关联名称
+	 * @return array
 	 */
 	public function addValidate(array $validate, $issystem = true, $name = true) {
 		$relation = $this->_link;
@@ -271,10 +284,10 @@ class ContentModel extends RelationModel {
 
 	/**
 	 * 添加自动完成
-	 * @param array $validate 规则
-	 * @param type $issystem 是否主表
-	 * @param type $name 关联名称
-	 * @return type
+	 * @param array $auto 规则
+	 * @param boolean $issystem 是否主表
+	 * @param boolean $name 关联名称
+	 * @return array
 	 */
 	public function addAuto(array $auto, $issystem = true, $name = true) {
 		$relation = $this->_link;
@@ -287,9 +300,9 @@ class ContentModel extends RelationModel {
 					//关联类名
 					$mappingClass = !empty($val['class_name']) ? $val['class_name'] : $key;
 					if ($issystem) {
-						$this->_auto[] = $validate;
+						$this->_auto[] = $auto;
 					} else {
-						$this->_auto[$mappingName][] = $validate;
+						$this->_auto[$mappingName][] = $auto;
 					}
 				}
 			}
@@ -299,11 +312,10 @@ class ContentModel extends RelationModel {
 
 	/**
 	 * 信息锁定
-	 * @param type $catid 栏目ID
-	 * @param type $id 信息ID
-	 * @param type $userid 用户名ID
-	 * @param type $username 用户名
-	 * @return type
+	 * @param int $catid 栏目ID
+	 * @param int $id 信息ID
+	 * @param int $userid 用户名ID
+	 * @return boolean
 	 */
 	public function locking($catid, $id, $userid = 0) {
 		$db = M("Locking");
@@ -319,7 +331,7 @@ class ContentModel extends RelationModel {
 		$where['locktime'] = array("EGT", $time - $Lock_the_effective_time);
 		$info = $db->where($where)->find();
 		if ($info && $info['userid'] != \Admin\Service\User::getInstance()->id) {
-			$this->error = 'o(︶︿︶)o 唉，该信息已经被用户【<font color=\"red\">' . $info['username'] . '</font>】锁定~请稍后在修改！';
+			$this->error = '该信息已经被用户【<font color=\"red\">' . $info['username'] . '</font>】锁定~请稍后在修改！';
 			return false;
 		}
 		//删除失效的

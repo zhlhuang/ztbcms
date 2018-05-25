@@ -19,7 +19,7 @@ use Overtrue\Socialite\User;
 /**
  * Class GoogleProvider.
  *
- * @link https://developers.google.com/identity/protocols/OpenIDConnect [OpenID Connect]
+ * @see https://developers.google.com/identity/protocols/OpenIDConnect [OpenID Connect]
  */
 class GoogleProvider extends AbstractProvider implements ProviderInterface
 {
@@ -97,7 +97,7 @@ class GoogleProvider extends AbstractProvider implements ProviderInterface
                 'prettyPrint' => 'false',
             ],
             'headers' => [
-                'Accept'        => 'application/json',
+                'Accept' => 'application/json',
                 'Authorization' => 'Bearer '.$token->getToken(),
             ],
         ]);
@@ -111,11 +111,12 @@ class GoogleProvider extends AbstractProvider implements ProviderInterface
     protected function mapUserToObject(array $user)
     {
         return new User([
-            'id'       => $this->arrayItem($user, 'id'),
+            'id' => $this->arrayItem($user, 'id'),
+            'username' => $this->arrayItem($user, 'emails.0.value'),
             'nickname' => $this->arrayItem($user, 'nickname'),
-            'name'     => $this->arrayItem($user, 'displayName'),
-            'email'    => $this->arrayItem($user, 'emails.0.value'),
-            'avatar'   => $this->arrayItem($user, 'image.url'),
+            'name' => $this->arrayItem($user, 'displayName'),
+            'email' => $this->arrayItem($user, 'emails.0.value'),
+            'avatar' => $this->arrayItem($user, 'image.url'),
         ]);
     }
 }

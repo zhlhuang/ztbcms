@@ -35,9 +35,7 @@ class AutoExpireFlashBag implements FlashBagInterface
     private $storageKey;
 
     /**
-     * Constructor.
-     *
-     * @param string $storageKey The key used to store flashes in the session.
+     * @param string $storageKey The key used to store flashes in the session
      */
     public function __construct($storageKey = '_sf2_flashes')
     {

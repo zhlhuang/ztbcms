@@ -4,7 +4,7 @@
 <head>
 <meta http-equiv="X-UA-Compatible" content="edge" />
 <meta charset="utf-8" />
-<title>系统后台 - {$Config.sitename} - by ZtbCMS</title>
+<title>系统后台 - {$Config.sitename} - by ZTBCMS</title>
 <meta name="generator" content="ThinkPHP" />
 <admintemplate file="Admin/Common/Js"/>
 <style type="text/css">
@@ -64,7 +64,7 @@ iframe{background-color:transparent}
 .login_main .login_list .yanzhengma .yanzheng_txt{margin-left:2px}
 .login_main .login_list .yanzhengma .input_txt{width:139px;margin-bottom:40px}
 .login_main .login_list .yanzhengma .yanzhengma_box{position:absolute;left:160px;top:0}
-.login_main .login_list .yanzhengma .yanzheng_img{display:block;margin-bottom:10px}
+.login_main .login_list .yanzhengma .yanzheng_img{display:block;margin-bottom:10px;height: 53px;width: 120px;}
 .login_main .login_btn{ width:148px;height:48px;line-height:150px;overflow:hidden;font-size:0;*background:none;background-image:url({$config_siteurl}statics/images/qzone_login.png);background-position:-514px 0;border:none;cursor:pointer}
 .qzone_login .login_main nav{color:#d0d3d7;margin:20px 0 0 3px}
 .qzone_login .login_main nav .sep{margin:0 12px}
@@ -171,6 +171,17 @@ if (window.parent !== window.self) {
 	}, 0);
 }
 </script>
+
+    <script>
+        var _hmt = _hmt || [];
+        (function() {
+            var hm = document.createElement("script");
+            hm.src = "https://hm.baidu.com/hm.js?123929b4d143a8384864a99fd4199190";
+            var s = document.getElementsByTagName("script")[0];
+            s.parentNode.insertBefore(hm, s);
+        })();
+    </script>
+
 </head>
 <body>
 <div class="wrap">
@@ -191,7 +202,7 @@ if (window.parent !== window.self) {
             <li class="login_input" style="margin: 0 auto;">
               <input maxlength="16" type="password" id="p" name="password" tabindex="2" class="input_txt" value="" placeholder="密码" title="密码">
             </li>
-            <li class="yanzhengma clearfix" id="verifytip"> 
+            <li class="yanzhengma clearfix" id="verifytip">
 							<span id="verifyinput" style="float: left;margin-left: 47px;">
               	<input id="verifycode" name="code" maxlength="5" tabindex="3" class="input_txt" type="text" value="" placeholder="请输入验证码">
               </span>
@@ -205,11 +216,12 @@ if (window.parent !== window.self) {
         <div class="quick_login" id="qlogin"> </div>
       </div>
     </div>
-    <div class="platform_box"> 
+    <div class="platform_box">
 				<div class="inner" style="text-align: center;color: white !important;">
 						<div class="copyright clearfix">
-							<p class="copyright_en">Copyright © 2016 - 2016 , ZtbCMS All Rights Reserved.</p>
-							<p class="copyright_ch"><a href="http://www.ztbcms.com" target="_blank" style="color: white;	">http://www.ztbcms.com</a></p>
+							<p>当前版本 v{:C('APPLIATION_VERSION')}</p>
+							<p class="copyright_en">Copyright © 2015 - {:date('Y')} , ZTBCMS All Rights Reserved.</p>
+							<p class="copyright_ch"><a href="http://www.ZTBCMS.com" target="_blank" style="color: white;	">http://www.ztbcms.com</a></p>
 						</div>
 					</div>
 		</div>
@@ -217,9 +229,23 @@ if (window.parent !== window.self) {
 </div>
 <script src="{$config_siteurl}statics/js/common.js"></script>
 <script>
+
+//进入页面的时候，把按钮的 disabled 属性去掉
+window.addEventListener('pageshow', pageshow);
+function pageshow() {
+    $('#subbtn').removeAttr('disabled');
+}
+
+//使用js function 代替原生的 submit
+$('#subbtn').click(submit);
+function submit() {
+    //点击后为按钮添加 disabled 属性，防止二次点击
+    $('#subbtn').attr('disabled', 'disabled');
+    $('#loginform').submit();
+}
 //刷新二维码
 function refreshs(){
-	document.getElementById('code_img').src='{:U('Api/Checkcode/index','code_len=4&font_size=20&width=130&height=50&font_color=&background=&refresh=1')}&time='+Math.random();void(0);
+	document.getElementById('code_img').src="{:U('Api/Checkcode/index','code_len=4&font_size=20&width=130&height=50&font_color=&background=&refresh=1')}&time="+Math.random();void(0);
 }
 $(function(){
 	$('#verifycode').focus(function(){

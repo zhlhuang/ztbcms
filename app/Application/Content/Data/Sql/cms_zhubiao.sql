@@ -1,5 +1,5 @@
 CREATE TABLE `@cms@@zhubiao@` (
-  `id` mediumint(8) unsigned NOT NULL auto_increment,
+  `id` int(11) unsigned NOT NULL auto_increment,
   `catid` smallint(5) unsigned NOT NULL DEFAULT '0',
   `typeid` smallint(5) unsigned NOT NULL DEFAULT '0',
   `title` varchar(255) NOT NULL DEFAULT '',
@@ -14,9 +14,9 @@ CREATE TABLE `@cms@@zhubiao@` (
   `status` tinyint(2) unsigned NOT NULL DEFAULT '1',
   `sysadd` tinyint(1) unsigned NOT NULL DEFAULT '0',
   `islink` tinyint(1) unsigned NOT NULL DEFAULT '0',
-  `username` char(20) NOT NULL DEFAULT '',
-  `inputtime` int(10) unsigned NOT NULL DEFAULT '0',
-  `updatetime` int(10) unsigned NOT NULL DEFAULT '0',
+  `username` char(64) NOT NULL DEFAULT '',
+  `inputtime` int(11) unsigned NOT NULL DEFAULT '0',
+  `updatetime` int(11) unsigned NOT NULL DEFAULT '0',
   `views` int(11) NOT NULL DEFAULT '0' COMMENT '点击总数',
   `yesterdayviews` int(11) NOT NULL DEFAULT '0' COMMENT '最日',
   `dayviews` int(10) NOT NULL DEFAULT '0' COMMENT '今日点击数',
@@ -28,4 +28,4 @@ CREATE TABLE `@cms@@zhubiao@` (
   KEY `listorder` (`catid`,`status`,`listorder`,`id`),
   KEY `catid` (`catid`,`weekviews`,`views`,`dayviews`,`monthviews`,`status`,`id`),
   KEY `thumb` (`thumb`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

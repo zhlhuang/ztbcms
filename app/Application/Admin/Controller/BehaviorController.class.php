@@ -29,10 +29,11 @@ class BehaviorController extends AdminBase {
         }
         //获取总数
         $count = $this->behavior->where($where)->count('id');
-        $page = $this->page($count, 20);
+        $_page = I('get.page', 1);
+        $page = $this->page($count, 20, $_page);
         $action = $this->behavior->where($where)->limit($page->firstRow . ',' . $page->listRows)->order(array("id" => "desc"))->select();
 
-        $this->assign("Page", $page->show('Admin'));
+        $this->assign("Page", $page->show());
         $this->assign('data', $action);
         $this->display();
     }
@@ -112,7 +113,7 @@ class BehaviorController extends AdminBase {
         }
         $model = M('BehaviorLog');
         $count = $model->where($wehre)->count();
-        $page = $this->page($count, 20);
+        $page = $this->page($count, 20,I('page',1));
         $data = $model->where($wehre)->limit($page->firstRow . ',' . $page->listRows)->order(array('id' => 'DESC'))->select();
         $this->assign('Page', $page->show())
                 ->display();

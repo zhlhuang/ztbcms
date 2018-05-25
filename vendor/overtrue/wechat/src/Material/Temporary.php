@@ -15,9 +15,10 @@
  * @author    overtrue <i@overtrue.me>
  * @copyright 2015 overtrue <i@overtrue.me>
  *
- * @link      https://github.com/overtrue
- * @link      http://overtrue.me
+ * @see      https://github.com/overtrue
+ * @see      http://overtrue.me
  */
+
 namespace EasyWeChat\Material;
 
 use EasyWeChat\Core\AbstractAPI;
@@ -80,7 +81,17 @@ class Temporary extends AbstractAPI
     {
         $response = $this->getHttp()->get(self::API_GET, ['media_id' => $mediaId]);
 
-        return $response->getBody();
+        $response->getBody()->rewind();
+
+        $body = $response->getBody()->getContents();
+
+        $json = json_decode($body, true);
+
+        if (JSON_ERROR_NONE === json_last_error()) {
+            $this->checkAndThrow($json);
+        }
+
+        return $body;
     }
 
     /**
@@ -89,7 +100,7 @@ class Temporary extends AbstractAPI
      * @param string $type
      * @param string $path
      *
-     * @return string
+     * @return \EasyWeChat\Support\Collection
      *
      * @throws \EasyWeChat\Core\Exceptions\InvalidArgumentException
      */
@@ -103,7 +114,7 @@ class Temporary extends AbstractAPI
             throw new InvalidArgumentException("Unsupported media type: '{$type}'");
         }
 
-        return $this->parseJSON('upload', [self::API_UPLOAD, ['media' => $path], ['type' => $type]]);
+        return $this->parseJSON('upload', [self::API_UPLOAD, ['media' => $path], [], ['type' => $type]]);
     }
 
     /**
@@ -111,7 +122,7 @@ class Temporary extends AbstractAPI
      *
      * @param $path
      *
-     * @return string
+     * @return \EasyWeChat\Support\Collection
      *
      * @throws \EasyWeChat\Core\Exceptions\InvalidArgumentException
      */
@@ -125,7 +136,7 @@ class Temporary extends AbstractAPI
      *
      * @param $path
      *
-     * @return string
+     * @return \EasyWeChat\Support\Collection
      *
      * @throws \EasyWeChat\Core\Exceptions\InvalidArgumentException
      */
@@ -139,7 +150,7 @@ class Temporary extends AbstractAPI
      *
      * @param $path
      *
-     * @return string
+     * @return \EasyWeChat\Support\Collection
      *
      * @throws \EasyWeChat\Core\Exceptions\InvalidArgumentException
      */
@@ -153,7 +164,7 @@ class Temporary extends AbstractAPI
      *
      * @param $path
      *
-     * @return string
+     * @return \EasyWeChat\Support\Collection
      *
      * @throws \EasyWeChat\Core\Exceptions\InvalidArgumentException
      */

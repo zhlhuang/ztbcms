@@ -6,6 +6,7 @@
 
 namespace Admin\Controller;
 
+use Admin\Service\User;
 use Common\Controller\AdminBase;
 
 class RbacController extends AdminBase {
@@ -16,32 +17,51 @@ class RbacController extends AdminBase {
         $tree->icon = array('&nbsp;&nbsp;&nbsp;│ ', '&nbsp;&nbsp;&nbsp;├─ ', '&nbsp;&nbsp;&nbsp;└─ ');
         $tree->nbsp = '&nbsp;&nbsp;&nbsp;';
         $roleList = D("Admin/Role")->getTreeArray();
+        $userInfo=User::getInstance()->getInfo();
         foreach ($roleList as $k => $rs) {
             $operating = '';
             if ($rs['id'] == 1) {
+                //超级管理员
                 $operating = '<font color="#cccccc">权限设置</font> | <a href="' . U('Management/manager', array('role_id' => $rs['id'])) . '">成员管理</a> | <font color="#cccccc">修改</font> | <font color="#cccccc">删除</font>';
             } else {
-                $operating = '<a href="' . U("Rbac/authorize", array("id" => $rs["id"])) . '">权限设置</a> | <a href="' . U("Rbac/setting_cat_priv", array("roleid" => $rs["id"])) . '">栏目权限</a> | <a href="' . U('Management/manager', array('role_id' => $rs['id'])) . '">成员管理</a> | <a href="' . U('Rbac/roleedit', array('id' => $rs['id'])) . '">修改</a> | <a class="J_ajax_del" href="' . U('Rbac/roledelete', array('id' => $rs['id'])) . '">删除</a>';
+                //其他管理员
+                $operating = '<a href="' . U("Admin/AccessGroup/accessGroupRoleSetting", ['role_id' => $rs['id']]) . '">权限组设置</a> | ';
+                $operating .= '<a href="' . U("Rbac/authorize", array("id" => $rs["id"])) . '">权限设置</a> | <a href="' . U("Rbac/setting_cat_priv", array("roleid" => $rs["id"])) . '">栏目权限</a> | <a href="' . U('Management/manager', array('role_id' => $rs['id'])) . '">成员管理</a> | <a href="' . U('Rbac/roleedit', array('id' => $rs['id'])) . '">修改</a> | <a class="J_ajax_del" href="' . U('Rbac/roledelete', array('id' => $rs['id'])) . '">删除</a>';
             }
+            if ($rs['status'] == 1) {
+                $status = "<font color='red'>√</font>";
+            } else {
+                $status = "<font color='red'>×</font>";
+            }
+
             $roleList[$k]['operating'] = $operating;
+            $roleList[$k]['status'] = $status;
         }
         $str = "<tr>
           <td>\$id</td>
           <td>\$spacer\$name</td>
           <td>\$remark</td>
-          <td align='center'><font color='red'>√</font></td>
+          <td align='center'>\$status</td>
           <td align='center'>\$operating</td>
         </tr>";
+        //如果是超级管理员，显示所有角色。如果非超级管理员，只显示下级角色
+        $myid=User::getInstance()->isAdministrator() ? 0 : $userInfo['role_id'];
         $tree->init($roleList);
-        $this->assign("role", $tree->get_tree(0, $str));
+        $this->assign("role", $tree->get_tree($myid, $str));
         $this->assign("data", D("Admin/Role")->order(array("listorder" => "asc", "id" => "desc"))->select())
                 ->display();
     }
 
     //添加角色
     public function roleadd() {
+        $userInfo = User::getInstance()->getInfo();
         if (IS_POST) {
-            if (D("Admin/Role")->create()) {
+            $data = I('post.');
+            if(!User::getInstance()->isAdministrator()){
+                //如果不是超级管理员，所添加的角色只能是该角色的下级。
+                $data['parentid']=$userInfo['role_id'];
+            }
+            if (D("Admin/Role")->create($data)) {
                 if (D("Admin/Role")->add()) {
                     $this->success("添加角色成功！", U("Rbac/rolemanage"));
                 } else {
@@ -52,6 +72,8 @@ class RbacController extends AdminBase {
                 $this->error($error ? $error : '添加失败！');
             }
         } else {
+            //向前端渲染登录信息
+            $this->assign('userInfo',$userInfo);
             $this->display();
         }
     }
@@ -150,11 +172,23 @@ class RbacController extends AdminBase {
             $result = cache("Menu");
             //获取已权限表数据
             $priv_data = D("Admin/Role")->getAccessList($roleid);
+
+            //获取登录管理员的授权信息
+            $isadmin=User::getInstance()->isAdministrator();
+            $userInfo=User::getInstance()->getInfo();
+            $login_priv_data = D("Admin/Role")->getAccessList($userInfo['role_id']);
+
             $json = array();
             foreach ($result as $rs) {
+                if(!$isadmin){
+                    //如果不是超级管理员，筛选出他没有授权的功能。
+                    if(!D("Admin/Role")->isCompetence($rs, $userInfo['role_id'], $login_priv_data)){
+                        continue;
+                    }
+                }
+
                 $data = array(
                     'id' => $rs['id'],
-                    'checked' => $rs['id'],
                     'parentid' => $rs['parentid'],
                     'name' => $rs['name'] . ($rs['type'] == 0 ? "(菜单项)" : ""),
                     'checked' => D("Admin/Role")->isCompetence($rs, $roleid, $priv_data) ? true : false,
@@ -200,6 +234,13 @@ class RbacController extends AdminBase {
                 $this->error('请指定需要授权的角色！');
             }
             $categorys = cache("Category");
+            $isAdministrator=User::getInstance()->isAdministrator();
+            if ($isAdministrator !== true) {
+                $priv_result = M('CategoryPriv')->where(array('roleid' => User::getInstance()->role_id, 'action' => 'init'))->select();
+                foreach ($priv_result as $_v) {
+                    $priv_catids[$_v['catid']] = true;
+                }
+            }
             $tree = new \Tree();
             $tree->icon = array('&nbsp;&nbsp;&nbsp;│ ', '&nbsp;&nbsp;&nbsp;├─ ', '&nbsp;&nbsp;&nbsp;└─ ');
             $tree->nbsp = '&nbsp;&nbsp;&nbsp;';
@@ -211,6 +252,10 @@ class RbacController extends AdminBase {
 
             foreach ($categorys as $k => $v) {
                 $v = getCategory($v['catid']);
+                if(!$isAdministrator && !$priv_catids[$v['catid']]){
+                    unset($categorys[$k]);
+                    continue;
+                }
                 if ($v['type'] == 1 || $v['child']) {
                     $v['disabled'] = 'disabled';
                     $v['init_check'] = '';

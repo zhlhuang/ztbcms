@@ -3,14 +3,20 @@
  
 [在线文档](http://ztbcms.com)
 
+<a href="http://www.phptherightway.com">
+    <img src="http://www.phptherightway.com/images/banners/leaderboard-728x90.png" alt="PHP: The Right Way"/>
+</a>
+
 ## 环境要求
 
-* PHP版本需要5.4+ 推荐5.6(未支持PHP 7)
+* PHP版本需要5.4+ 推荐5.6
     * php5-curl 
     * php5-gd
+    * php5-mysql
 * Mysql 5.5+
     * mysql-client
 * Apache 2.2(推荐2.4) 
+* 可选的配置URL重写，参考[ThinkPHP - URL重写](http://document.thinkphp.cn/manual_3_2.html#url_rewrite)
 
 ## 下载安装
 
